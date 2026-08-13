@@ -1,9 +1,15 @@
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
+import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "app"),
+    },
+  },
   plugins: [
     tailwindcss(),
     reactRouter(),

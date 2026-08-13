@@ -1,9 +1,17 @@
+import { useEffect } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 
+import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "../../components/ui/field";
 import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
 import type { ObsConnectionSettings } from "./types";
 
 type ConnectionFormValues = {
@@ -26,6 +34,7 @@ export function ConnectionForm({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ConnectionFormValues>({
     defaultValues: {
@@ -34,6 +43,14 @@ export function ConnectionForm({
       password: defaultValues?.password ?? "",
     },
   });
+
+  useEffect(() => {
+    reset({
+      host: defaultValues?.host ?? "",
+      port: defaultValues?.port ?? 4455,
+      password: defaultValues?.password ?? "",
+    });
+  }, [defaultValues, reset]);
 
   const submit: SubmitHandler<ConnectionFormValues> = async (values) => {
     await onSubmit({
@@ -44,56 +61,64 @@ export function ConnectionForm({
   };
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit(submit)}>
-      <div className="space-y-2">
-        <Label htmlFor="obs-host">Host</Label>
-        <Input
-          id="obs-host"
-          autoComplete="off"
-          autoFocus
-          placeholder="192.168.1.20"
-          {...register("host", {
-            required: "Host is required.",
-          })}
-        />
-        {errors.host ? <p className="text-sm text-red-700">{errors.host.message}</p> : null}
-      </div>
+    <form className="flex flex-col gap-5" onSubmit={handleSubmit(submit)}>
+      <FieldGroup>
+        <Field data-invalid={Boolean(errors.host)}>
+          <FieldLabel htmlFor="obs-host">Host</FieldLabel>
+          <FieldContent>
+            <Input
+              aria-invalid={Boolean(errors.host)}
+              autoComplete="off"
+              autoFocus
+              id="obs-host"
+              placeholder="192.168.1.20"
+              {...register("host", {
+                required: "Host is required.",
+              })}
+            />
+            <FieldError errors={[errors.host]} />
+          </FieldContent>
+        </Field>
 
-      <div className="space-y-2">
-        <Label htmlFor="obs-port">Port</Label>
-        <Input
-          id="obs-port"
-          inputMode="numeric"
-          placeholder="4455"
-          {...register("port", {
-            required: "Port is required.",
-            valueAsNumber: true,
-            min: {
-              value: 1,
-              message: "Port must be greater than 0.",
-            },
-          })}
-        />
-        {errors.port ? <p className="text-sm text-red-700">{errors.port.message}</p> : null}
-      </div>
+        <Field data-invalid={Boolean(errors.port)}>
+          <FieldLabel htmlFor="obs-port">Port</FieldLabel>
+          <FieldContent>
+            <Input
+              aria-invalid={Boolean(errors.port)}
+              id="obs-port"
+              inputMode="numeric"
+              placeholder="4455"
+              {...register("port", {
+                required: "Port is required.",
+                valueAsNumber: true,
+                min: {
+                  value: 1,
+                  message: "Port must be greater than 0.",
+                },
+              })}
+            />
+            <FieldError errors={[errors.port]} />
+          </FieldContent>
+        </Field>
 
-      <div className="space-y-2">
-        <Label htmlFor="obs-password">Password</Label>
-        <Input
-          id="obs-password"
-          type="password"
-          placeholder="Optional unless OBS requires it"
-          {...register("password")}
-        />
-      </div>
+        <Field>
+          <FieldLabel htmlFor="obs-password">Password</FieldLabel>
+          <FieldContent>
+            <Input
+              id="obs-password"
+              placeholder="Optional unless OBS requires it"
+              type="password"
+              {...register("password")}
+            />
+          </FieldContent>
+        </Field>
+      </FieldGroup>
 
       {error ? (
-        <div
-          role="alert"
-          className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
-        >
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertTitle>Connection failed</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
       <Button className="w-full" type="submit" disabled={isSubmitting}>

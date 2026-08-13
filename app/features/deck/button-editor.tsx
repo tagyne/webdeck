@@ -3,8 +3,25 @@ import type { SubmitHandler } from "react-hook-form";
 import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "../../components/ui/field";
 import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "../../components/ui/native-select";
 import { OBS_ACTION_TYPES, WEBDECK_ICON_ALLOWLIST, type DeckButton, type DeckConfig } from "./types";
 import type { DeckButtonAction } from "../obs/types";
 
@@ -139,138 +156,156 @@ export function ButtonEditor({
   };
 
   return (
-    <section
+    <Card
       aria-label={`Edit slot ${slot + 1}`}
-      className="rounded-[1.75rem] border border-[--color-line] bg-white/92 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
+      className="rounded-[1.75rem] border border-border/70 bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
       role="region"
     >
-      <div className="mb-5 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Deck editor
-          </p>
-          <h2 className="mt-2 font-display text-3xl text-[--color-ink]">
-            Edit slot {slot + 1}
-          </h2>
-        </div>
-        <Button variant="secondary" onClick={onCancel}>
-          Close
-        </Button>
-      </div>
-
-      <form className="space-y-4" onSubmit={handleSubmit(submit)}>
-        <div className="space-y-2">
-          <Label htmlFor="button-label">Label</Label>
-          <Input
-            id="button-label"
-            {...labelField}
-            ref={(element) => {
-              labelField.ref(element);
-              labelInputRef.current = element;
-            }}
-          />
-          {errors.label ? <p className="text-sm text-red-700">{errors.label.message}</p> : null}
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="button-icon">Icon</Label>
-            <select
-              id="button-icon"
-              className="w-full rounded-2xl border border-[--color-line] bg-white px-4 py-3 text-sm text-[--color-ink]"
-              {...register("iconName", {
-                required: true,
-              })}
-            >
-              {WEBDECK_ICON_ALLOWLIST.map((iconName) => (
-                <option key={iconName} value={iconName}>
-                  {iconName}
-                </option>
-              ))}
-            </select>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Deck editor
+            </p>
+            <CardTitle className="font-display text-3xl text-[--color-ink]">
+              Edit slot {slot + 1}
+            </CardTitle>
+            <CardDescription>
+              Configure the button label, icon, color, and OBS action for this slot.
+            </CardDescription>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="button-color">Color</Label>
-            <Input
-              id="button-color"
-              type="color"
-              className="h-12 p-2"
-              {...register("color", {
-                required: true,
-              })}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="button-action-type">Action type</Label>
-          <select
-            id="button-action-type"
-            className="w-full rounded-2xl border border-[--color-line] bg-white px-4 py-3 text-sm text-[--color-ink]"
-            {...register("actionType")}
-          >
-            {OBS_ACTION_TYPES.map((actionTypeOption) => (
-              <option key={actionTypeOption} value={actionTypeOption}>
-                {actionTypeOption}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {actionType === "toggleInputMute" ? (
-          <div className="space-y-2">
-            <Label htmlFor="action-input-name">Input name</Label>
-            <Input
-              id="action-input-name"
-              {...register("inputName", {
-                validate: (value) =>
-                  actionType !== "toggleInputMute" || value.trim().length > 0 || "Input name is required.",
-              })}
-            />
-            {errors.inputName ? <p className="text-sm text-red-700">{errors.inputName.message}</p> : null}
-          </div>
-        ) : null}
-
-        {actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility" ? (
-          <div className="space-y-2">
-            <Label htmlFor="action-scene-name">Scene name</Label>
-            <Input
-              id="action-scene-name"
-              {...register("sceneName", {
-                validate: (value) =>
-                  actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility"
-                    ? value.trim().length > 0 || "Scene name is required."
-                    : true,
-              })}
-            />
-            {errors.sceneName ? <p className="text-sm text-red-700">{errors.sceneName.message}</p> : null}
-          </div>
-        ) : null}
-
-        {actionType === "toggleSourceVisibility" ? (
-          <div className="space-y-2">
-            <Label htmlFor="action-source-name">Source name</Label>
-            <Input
-              id="action-source-name"
-              {...register("sourceName", {
-                validate: (value) =>
-                  actionType !== "toggleSourceVisibility" || value.trim().length > 0 || "Source name is required.",
-              })}
-            />
-            {errors.sourceName ? <p className="text-sm text-red-700">{errors.sourceName.message}</p> : null}
-          </div>
-        ) : null}
-
-        <div className="flex gap-3">
-          <Button className="flex-1" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save button"}
-          </Button>
-          <Button className="flex-1" variant="secondary" onClick={onCancel}>
-            Cancel
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Close
           </Button>
         </div>
-      </form>
-    </section>
+      </CardHeader>
+
+      <CardContent>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(submit)}>
+          <FieldGroup>
+            <Field data-invalid={Boolean(errors.label)}>
+              <FieldLabel htmlFor="button-label">Label</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="button-label"
+                  {...labelField}
+                  ref={(element) => {
+                    labelField.ref(element);
+                    labelInputRef.current = element;
+                  }}
+                />
+                <FieldError errors={[errors.label]} />
+              </FieldContent>
+            </Field>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="button-icon">Icon</FieldLabel>
+                <FieldContent>
+                  <NativeSelect
+                    id="button-icon"
+                    {...register("iconName", {
+                      required: true,
+                    })}
+                  >
+                    {WEBDECK_ICON_ALLOWLIST.map((iconName) => (
+                      <NativeSelectOption key={iconName} value={iconName}>
+                        {iconName}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="button-color">Color</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="button-color"
+                    type="color"
+                    className="h-12 p-2"
+                    {...register("color", {
+                      required: true,
+                    })}
+                  />
+                </FieldContent>
+              </Field>
+            </div>
+
+            <Field>
+              <FieldLabel htmlFor="button-action-type">Action type</FieldLabel>
+              <FieldContent>
+                <NativeSelect id="button-action-type" {...register("actionType")}>
+                  {OBS_ACTION_TYPES.map((actionTypeOption) => (
+                    <NativeSelectOption key={actionTypeOption} value={actionTypeOption}>
+                      {actionTypeOption}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </FieldContent>
+            </Field>
+
+            {actionType === "toggleInputMute" ? (
+              <Field data-invalid={Boolean(errors.inputName)}>
+                <FieldLabel htmlFor="action-input-name">Input name</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="action-input-name"
+                    {...register("inputName", {
+                      validate: (value) =>
+                        actionType !== "toggleInputMute" || value.trim().length > 0 || "Input name is required.",
+                    })}
+                  />
+                  <FieldError errors={[errors.inputName]} />
+                </FieldContent>
+              </Field>
+            ) : null}
+
+            {actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility" ? (
+              <Field data-invalid={Boolean(errors.sceneName)}>
+                <FieldLabel htmlFor="action-scene-name">Scene name</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="action-scene-name"
+                    {...register("sceneName", {
+                      validate: (value) =>
+                        actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility"
+                          ? value.trim().length > 0 || "Scene name is required."
+                          : true,
+                    })}
+                  />
+                  <FieldError errors={[errors.sceneName]} />
+                </FieldContent>
+              </Field>
+            ) : null}
+
+            {actionType === "toggleSourceVisibility" ? (
+              <Field data-invalid={Boolean(errors.sourceName)}>
+                <FieldLabel htmlFor="action-source-name">Source name</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="action-source-name"
+                    {...register("sourceName", {
+                      validate: (value) =>
+                        actionType !== "toggleSourceVisibility" || value.trim().length > 0 || "Source name is required.",
+                    })}
+                  />
+                  <FieldError errors={[errors.sourceName]} />
+                </FieldContent>
+              </Field>
+            ) : null}
+          </FieldGroup>
+
+          <div className="flex gap-3">
+            <Button className="flex-1" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save button"}
+            </Button>
+            <Button className="flex-1" type="button" variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

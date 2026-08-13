@@ -28,7 +28,7 @@ export function DeckButton({
       aria-label={accessibleName}
       variant={button ? "secondary" : "ghost"}
       className={cn(
-        "aspect-square w-full items-stretch rounded-[1.6rem] p-0 text-left",
+        "h-full min-h-0 w-full items-stretch rounded-[1.6rem] p-0 text-left",
         button
           ? "border border-slate-900/8 bg-white text-[--color-ink] shadow-[0_18px_50px_rgba(15,23,42,0.12)]"
           : "border border-dashed border-white/12 bg-white/6 text-slate-300",
@@ -38,7 +38,7 @@ export function DeckButton({
     >
       {button ? (
         <div
-          className="flex h-full flex-col justify-between rounded-[1.45rem] p-4"
+          className="flex h-full min-h-0 flex-col justify-between rounded-[1.45rem] p-4"
           style={{
             background:
               `linear-gradient(180deg, ${button.color}20 0%, rgba(255,255,255,0.98) 100%)`,
@@ -63,7 +63,7 @@ export function DeckButton({
           </div>
         </div>
       ) : (
-        <div className="flex h-full flex-col justify-between rounded-[1.45rem] border border-dashed border-white/10 p-4">
+        <div className="flex h-full min-h-0 flex-col justify-between rounded-[1.45rem] border border-dashed border-white/10 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
             Slot {slot + 1}
           </p>

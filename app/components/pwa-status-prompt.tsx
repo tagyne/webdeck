@@ -34,7 +34,6 @@ export function PwaStatusPrompt() {
         <div className="mt-4 flex flex-wrap gap-3">
           {needRefresh ? (
             <Button
-              variant="primary"
               onClick={() => {
                 void updateServiceWorker(true);
               }}
