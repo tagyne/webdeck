@@ -14,6 +14,7 @@ import { PwaStatusPrompt } from "./components/pwa-status-prompt";
 export function links() {
   return [
     { rel: "stylesheet", href: appStylesHref },
+    { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     { rel: "manifest", href: "/manifest.webmanifest" },
   ];
 }

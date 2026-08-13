@@ -11,7 +11,7 @@ export default defineConfig({
       outDir: "build/client",
       registerType: "autoUpdate",
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
       manifest: {
         name: "Webdeck OBS Controller",
