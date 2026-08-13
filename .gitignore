@@ -7,4 +7,12 @@ dist/
 playwright-report/
 test-results/
 
+# generated type declarations, sourcemaps, and emitted js beside source
+*.d.ts
+*.d.ts.map
+*.js.map
+app/**/*.js
+e2e/**/*.js
+tests/**/*.js
+
 .DS_Store
