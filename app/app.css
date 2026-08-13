@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Instrument Serif", serif;
+  --font-sans: "Space Grotesk", sans-serif;
+}
+
+:root {
+  --color-surface: #f4efe6;
+  --color-ink: #172033;
+  --color-line: rgba(23, 32, 51, 0.12);
+  --color-signal: #c2410c;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-surface);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}

@@ -1,0 +1,10 @@
+node_modules/
+.react-router/
+
+build/
+dev-dist/
+dist/
+playwright-report/
+test-results/
+
+.DS_Store

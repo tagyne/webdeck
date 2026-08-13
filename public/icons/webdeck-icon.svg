@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>Webdeck Icon</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#172033" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#bg)" />
+  <rect x="76" y="76" width="360" height="360" rx="84" fill="#f8fafc" opacity="0.08" />
+  <g fill="url(#accent)">
+    <rect x="112" y="122" width="86" height="86" rx="24" />
+    <rect x="213" y="122" width="86" height="86" rx="24" />
+    <rect x="314" y="122" width="86" height="86" rx="24" />
+    <rect x="112" y="223" width="86" height="86" rx="24" />
+    <rect x="213" y="223" width="187" height="86" rx="24" />
+    <rect x="112" y="324" width="187" height="86" rx="24" />
+    <rect x="314" y="324" width="86" height="86" rx="24" />
+  </g>
+</svg>

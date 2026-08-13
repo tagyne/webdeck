@@ -1,5 +1,18 @@
 # Webdeck OBS PWA Task List
 
+## Current Status
+
+As of Thursday, August 13, 2026:
+
+- The repo includes the planned scaffold, persistence layer, OBS boundary, core deck flows, dangerous-action safeguards, reconnect handling, offline shell behavior, responsive control safeguards, and PWA update prompt.
+- Local source verification passes with `pnpm lint`, `pnpm test:unit`, and `pnpm build`.
+- Playwright specs now exist for first launch, deck interaction/editing, import/export, OBS disconnect/reconnect state, dangerous-action confirmation, PWA manifest metadata, and responsive desktop/phone/tablet coverage, and they are discoverable via `pnpm test:e2e:list`.
+- The offline shell behavior is covered locally: saved deck UI remains visible while OBS is disconnected/unreachable.
+
+Remaining blocker:
+
+- `pnpm test:e2e` is blocked by the host browser runtime because Chromium cannot start without `libnspr4.so`. Until that system dependency is installed, the final browser-execution gates in Tasks 2, 11, 14, and 15 cannot be proven on this machine.
+
 ## Task 1: Scaffold the React Router PWA project
 
 **Description:** Create the initial pnpm/Vite/React Router framework-mode app with TypeScript, Tailwind/shadcn prerequisites, and Vite PWA wiring.
@@ -7,12 +20,12 @@
 **Stack to use:** pnpm, Vite, React, TypeScript, React Router framework mode, Tailwind/shadcn prerequisites, and Vite PWA. Use this stack because it is the approved static PWA foundation; configure it through `package.json`, Vite config, React Router config, and app route files.
 
 **Acceptance criteria:**
-- [ ] `package.json` includes scripts for `dev`, `build`, and `preview`.
-- [ ] React Router is configured for static/prerender output with runtime SSR disabled.
-- [ ] The starter app renders through React Router.
+- [x] `package.json` includes scripts for `dev`, `build`, and `preview`.
+- [x] React Router is configured for static/prerender output with runtime SSR disabled.
+- [x] The starter app renders through React Router.
 
 **Verification:**
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: `pnpm dev` serves the starter app.
 
 **Dependencies:** None
@@ -33,15 +46,15 @@
 **Stack to use:** pnpm scripts, Vitest, Playwright, TypeScript-aware linting. Use Vitest for fast logic/component feedback and Playwright for real browser/PWA checks; expose the commands exactly as `pnpm lint`, `pnpm test`, `pnpm test:unit`, and `pnpm test:e2e`.
 
 **Acceptance criteria:**
-- [ ] `package.json` includes scripts for `lint`, `test`, `test:unit`, and `test:e2e`.
-- [ ] Vitest has a passing smoke test.
+- [x] `package.json` includes scripts for `lint`, `test`, `test:unit`, and `test:e2e`.
+- [x] Vitest has a passing smoke test.
 - [ ] Playwright has a passing smoke test against the dev server.
 
 **Verification:**
-- [ ] Tests pass: `pnpm lint`
+- [x] Tests pass: `pnpm lint`
 - [ ] Tests pass: `pnpm test`
 - [ ] Tests pass: `pnpm test:e2e`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 
 **Dependencies:** Task 1
 
@@ -61,13 +74,13 @@
 **Stack to use:** TypeScript and lucide icon references. Use typed discriminated unions so deck config, import/export, Dexie records, Zustand stores, and OBS adapter calls all share one contract.
 
 **Acceptance criteria:**
-- [ ] Deck defaults represent a 3x3 grid.
-- [ ] Button icons only allow `{ type: "lucide"; name: string }`.
-- [ ] OBS action types cover mute toggle, scene change, source visibility toggle, stream start/stop, and recording pause/resume.
+- [x] Deck defaults represent a 3x3 grid.
+- [x] Button icons only allow `{ type: "lucide"; name: string }`.
+- [x] OBS action types cover mute toggle, scene change, source visibility toggle, stream start/stop, and recording pause/resume.
 
 **Verification:**
-- [ ] Tests pass: `pnpm test:unit`
-- [ ] Build succeeds: `pnpm build`
+- [x] Tests pass: `pnpm test:unit`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Type exports are importable from feature modules.
 
 **Dependencies:** Task 2
@@ -86,13 +99,13 @@
 **Stack to use:** TypeScript plus Vitest. Use runtime validation before Dexie persistence because imported JSON is untrusted; verify the contract with focused unit tests.
 
 **Acceptance criteria:**
-- [ ] Valid v1 configs parse into typed app data.
-- [ ] Invalid schema version, duplicate button IDs, out-of-range slots, unsupported lucide names, and missing action fields are rejected.
-- [ ] Export produces stable, human-readable `.webdeck.json` without password by default.
+- [x] Valid v1 configs parse into typed app data.
+- [x] Invalid schema version, duplicate button IDs, out-of-range slots, unsupported lucide names, and missing action fields are rejected.
+- [x] Export produces stable, human-readable `.webdeck.json` without password by default.
 
 **Verification:**
-- [ ] Tests pass: `pnpm test:unit`
-- [ ] Build succeeds: `pnpm build`
+- [x] Tests pass: `pnpm test:unit`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Sample exported JSON matches the spec shape.
 
 **Dependencies:** Task 3
@@ -111,13 +124,13 @@
 **Stack to use:** Dexie.js over IndexedDB with TypeScript table types and Vitest. Use Dexie because durable deck data needs a real browser database with schema versions; keep all database setup under `app/db/`.
 
 **Acceptance criteria:**
-- [ ] Dexie database is defined in `app/db/`.
-- [ ] Deck and connection records can be created, read, updated, and replaced.
-- [ ] Tests run against isolated IndexedDB-compatible storage.
+- [x] Dexie database is defined in `app/db/`.
+- [x] Deck and connection records can be created, read, updated, and replaced.
+- [x] Tests run against isolated IndexedDB-compatible storage.
 
 **Verification:**
-- [ ] Tests pass: `pnpm test:unit`
-- [ ] Build succeeds: `pnpm build`
+- [x] Tests pass: `pnpm test:unit`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Browser devtools shows the expected IndexedDB database after saving.
 
 **Dependencies:** Task 4
@@ -137,13 +150,13 @@
 **Stack to use:** Zustand for active UI/session state, Dexie repositories for durable writes, and Vitest. Use Zustand to keep the UI responsive while Dexie remains the saved source of truth; do not use localStorage persistence.
 
 **Acceptance criteria:**
-- [ ] Stores do not persist directly to localStorage.
-- [ ] Active deck and connection settings hydrate from Dexie on startup.
-- [ ] Store save operations write validated data through the Dexie repositories.
+- [x] Stores do not persist directly to localStorage.
+- [x] Active deck and connection settings hydrate from Dexie on startup.
+- [x] Store save operations write validated data through the Dexie repositories.
 
 **Verification:**
-- [ ] Tests pass: `pnpm test:unit`
-- [ ] Build succeeds: `pnpm build`
+- [x] Tests pass: `pnpm test:unit`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Reloading the app restores saved deck data from IndexedDB.
 
 **Dependencies:** Task 5
@@ -163,13 +176,13 @@
 **Stack to use:** obs-websocket-js, TypeScript adapter interfaces, fake test adapter, and Vitest. Use the adapter so React components never depend directly on the third-party OBS client.
 
 **Acceptance criteria:**
-- [ ] UI code depends on the adapter interface, not directly on `obs-websocket-js`.
-- [ ] Adapter exposes methods for all v1 OBS action families.
-- [ ] Fake adapter supports tests without requiring OBS.
+- [x] UI code depends on the adapter interface, not directly on `obs-websocket-js`.
+- [x] Adapter exposes methods for all v1 OBS action families.
+- [x] Fake adapter supports tests without requiring OBS.
 
 **Verification:**
-- [ ] Tests pass: `pnpm test:unit`
-- [ ] Build succeeds: `pnpm build`
+- [x] Tests pass: `pnpm test:unit`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Adapter can be wired to a real OBS URL in development.
 
 **Dependencies:** Task 3
@@ -189,13 +202,13 @@
 **Stack to use:** React, React Router route UI, shadcn form/dialog/button primitives, React Hook Form, Zustand, Dexie, obs-websocket-js adapter, Vitest, and Playwright. Use this mix because connection setup touches form validation, persistence, app state, and browser flow.
 
 **Acceptance criteria:**
-- [ ] Setup appears when no saved connection exists.
-- [ ] Successful connection saves settings to Dexie and moves to the deck.
-- [ ] Failed connection shows a specific, editable error state.
+- [x] Setup appears when no saved connection exists.
+- [x] Successful connection saves settings to Dexie and moves to the deck.
+- [x] Failed connection shows a specific, editable error state.
 
 **Verification:**
 - [ ] Tests pass: `pnpm test`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Try success and failure with the fake OBS adapter.
 
 **Dependencies:** Tasks 6 and 7
@@ -216,13 +229,13 @@
 **Stack to use:** React, shadcn buttons/tooltips where useful, curated lucide icons, Zustand, OBS adapter, Vitest, and Playwright. Use React for the grid, Zustand for active deck/OBS state, and Playwright to verify phone/tablet layout.
 
 **Acceptance criteria:**
-- [ ] Deck renders nine stable slots with responsive phone/tablet sizing.
-- [ ] Configured buttons execute their mapped OBS actions.
-- [ ] Empty slots are visible and ready for editing.
+- [x] Deck renders nine stable slots with responsive phone/tablet sizing.
+- [x] Configured buttons execute their mapped OBS actions.
+- [x] Empty slots are visible and ready for editing.
 
 **Verification:**
 - [ ] Tests pass: `pnpm test`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Tap configured buttons and verify fake adapter calls.
 
 **Dependencies:** Tasks 6 and 7
@@ -243,13 +256,13 @@
 **Stack to use:** React, shadcn dialog/form controls, React Hook Form, curated lucide allowlist, Zustand, Dexie, Vitest, and Playwright. Use React Hook Form because editor validation changes by action type.
 
 **Acceptance criteria:**
-- [ ] Editor validates required fields per action type.
-- [ ] Only curated lucide icons can be selected.
-- [ ] Saving updates Dexie and the active Zustand deck state.
+- [x] Editor validates required fields per action type.
+- [x] Only curated lucide icons can be selected.
+- [x] Saving updates Dexie and the active Zustand deck state.
 
 **Verification:**
 - [ ] Tests pass: `pnpm test`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Configure one button for each v1 action family.
 
 **Dependencies:** Task 9
@@ -270,13 +283,13 @@
 **Stack to use:** React, shadcn dialog/buttons, React Hook Form for import options if needed, deck validation/serialization, Dexie, Zustand, Vitest, and Playwright. Use JSON import/export as the portable config format and write to Dexie only after preview confirmation.
 
 **Acceptance criteria:**
-- [ ] Export downloads a `.webdeck.json` file matching schema version 1.
-- [ ] Import preview shows deck name, grid size, button count, and connection setting presence.
-- [ ] Import replaces the current deck only after explicit confirmation.
+- [x] Export downloads a `.webdeck.json` file matching schema version 1.
+- [x] Import preview shows deck name, grid size, button count, and connection setting presence.
+- [x] Import replaces the current deck only after explicit confirmation.
 
 **Verification:**
 - [ ] Tests pass: `pnpm test`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Export a deck, reset local data, import it, and confirm it restores.
 
 **Dependencies:** Tasks 4 and 6
@@ -297,13 +310,13 @@
 **Stack to use:** obs-websocket-js adapter events, Zustand OBS state, React deck UI, Vitest, and Playwright. Use OBS events for trustable live feedback and keep reconnect state visible through app-owned state.
 
 **Acceptance criteria:**
-- [ ] Buttons show current state where OBS exposes the state.
-- [ ] Connection loss is visible and does not imply actions succeeded.
-- [ ] Reconnect path can restore state without rebuilding the deck.
+- [x] Buttons show current state where OBS exposes the state.
+- [x] Connection loss is visible and does not imply actions succeeded.
+- [x] Reconnect path can restore state without rebuilding the deck.
 
 **Verification:**
 - [ ] Tests pass: `pnpm test`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Simulate OBS disconnect/reconnect with the fake adapter.
 
 **Dependencies:** Tasks 7 and 9
@@ -324,13 +337,13 @@
 **Stack to use:** React, shadcn confirmation primitives, Zustand transient UI state, OBS adapter, Vitest, and Playwright. Use shadcn for accessible confirmation UI and Playwright to prove accidental taps do not fire dangerous actions.
 
 **Acceptance criteria:**
-- [ ] Dangerous actions cannot fire from a single accidental tap.
-- [ ] Confirmation state is obvious and dismissible.
-- [ ] Non-dangerous actions remain fast single-tap controls.
+- [x] Dangerous actions cannot fire from a single accidental tap.
+- [x] Confirmation state is obvious and dismissible.
+- [x] Non-dangerous actions remain fast single-tap controls.
 
 **Verification:**
 - [ ] Tests pass: `pnpm test`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Attempt accidental tap and deliberate confirmation paths.
 
 **Dependencies:** Task 9
@@ -350,13 +363,13 @@
 **Stack to use:** Vite PWA plugin, Vite config, React app shell, Dexie, and Playwright. Use Vite PWA for manifest/service worker setup and Dexie so the offline shell can still show saved deck data.
 
 **Acceptance criteria:**
-- [ ] Manifest has app name, short name, theme color, display mode, and required icons.
-- [ ] Offline shell loads enough UI to show saved deck and disconnected OBS state.
-- [ ] Service worker update behavior is visible and not disruptive.
+- [x] Manifest has app name, short name, theme color, display mode, and required icons.
+- [x] Offline shell loads enough UI to show saved deck and disconnected OBS state.
+- [x] Service worker update behavior is visible and not disruptive.
 
 **Verification:**
 - [ ] Tests pass: `pnpm test:e2e`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Browser install prompt/signals are present where supported.
 
 **Dependencies:** Tasks 1, 6, and 9
@@ -378,13 +391,13 @@
 **Acceptance criteria:**
 - [ ] Touch targets are comfortable on phone and tablet.
 - [ ] Text does not overflow or overlap.
-- [ ] Keyboard/focus states work for setup, editor, import, and confirmations.
+- [x] Keyboard/focus states work for setup, editor, import, and confirmations.
 
 **Verification:**
-- [ ] Tests pass: `pnpm lint`
+- [x] Tests pass: `pnpm lint`
 - [ ] Tests pass: `pnpm test`
 - [ ] Tests pass: `pnpm test:e2e`
-- [ ] Build succeeds: `pnpm build`
+- [x] Build succeeds: `pnpm build`
 - [ ] Manual check: Full first-launch-to-deck workflow works in browser.
 
 **Dependencies:** Tasks 8 through 14

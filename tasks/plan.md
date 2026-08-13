@@ -1,5 +1,22 @@
 # Implementation Plan: Webdeck OBS PWA
 
+## Current Status
+
+As of Thursday, August 13, 2026, the React Router + Vite PWA scaffold, Dexie persistence, Zustand stores, OBS adapter, connection flow, deck grid, button editor, import/export flow, OBS state feedback, dangerous-action confirmation, offline shell behavior, responsive control safeguards, and service-worker update prompt are implemented in the repo and covered by local unit/component tests.
+
+Verified locally:
+
+- `pnpm lint`
+- `pnpm test:unit`
+- `pnpm build`
+- Playwright test discovery (`pnpm exec playwright test --list`)
+
+The Playwright suite currently covers first launch, deck interaction/editing, import/export, OBS disconnect/reconnect state, dangerous-action confirmation, and PWA manifest metadata across desktop, phone, and tablet projects.
+
+Current blocker:
+
+- `pnpm test:e2e` cannot complete on this host because Playwright Chromium fails to launch with `libnspr4.so` missing. The browser specs and test harness are present, but full browser execution and final manual browser checks remain blocked by the host environment.
+
 ## Overview
 
 Build the Webdeck OBS PWA from the spec in `docs/specs/webdeck-obs-pwa.md`: a local-first React/React Router app that can be installed on a phone or tablet, connect directly to OBS WebSocket over the local network, and provide a 3x3 configurable deck with trusted OBS state feedback and `.webdeck.json` import/export.
@@ -74,50 +91,50 @@ Project scaffold and tooling
 
 ### Phase 1: Scaffold and Contracts
 
-- [ ] Task 1: Scaffold the React Router PWA project
-- [ ] Task 2: Add lint, Vitest, and Playwright tooling
-- [ ] Task 3: Add shared deck, icon, connection, and OBS action models
-- [ ] Task 4: Add deck config validation and `.webdeck.json` serialization
+- [x] Task 1: Scaffold the React Router PWA project
+- [x] Task 2: Add lint, Vitest, and Playwright tooling
+- [x] Task 3: Add shared deck, icon, connection, and OBS action models
+- [x] Task 4: Add deck config validation and `.webdeck.json` serialization
 
 ### Checkpoint: Foundation
 
-- [ ] `pnpm lint` passes
-- [ ] `pnpm test:unit` passes
-- [ ] `pnpm build` succeeds
-- [ ] Validation rejects malformed deck imports before any persistence exists
+- [x] `pnpm lint` passes
+- [x] `pnpm test:unit` passes
+- [x] `pnpm build` succeeds
+- [x] Validation rejects malformed deck imports before any persistence exists
 
 ### Phase 2: Persistence and OBS Boundary
 
-- [ ] Task 5: Add Dexie database module for saved configuration
-- [ ] Task 6: Add Zustand session stores hydrated from Dexie
-- [ ] Task 7: Add OBS WebSocket adapter with a fakeable interface
+- [x] Task 5: Add Dexie database module for saved configuration
+- [x] Task 6: Add Zustand session stores hydrated from Dexie
+- [x] Task 7: Add OBS WebSocket adapter with a fakeable interface
 
 ### Checkpoint: Data and OBS Boundary
 
-- [ ] `pnpm test:unit` passes
-- [ ] `pnpm build` succeeds
-- [ ] Deck and connection settings can be saved and loaded through Dexie
-- [ ] OBS adapter tests run without real OBS
+- [x] `pnpm test:unit` passes
+- [x] `pnpm build` succeeds
+- [x] Deck and connection settings can be saved and loaded through Dexie
+- [x] OBS adapter tests run without real OBS
 
 ### Phase 3: Core User Flows
 
-- [ ] Task 8: Build first-launch connection setup
-- [ ] Task 9: Build the 3x3 deck grid and button execution flow
-- [ ] Task 10: Build lightweight button editor
-- [ ] Task 11: Build import/export flow with preview confirmation
+- [x] Task 8: Build first-launch connection setup
+- [x] Task 9: Build the 3x3 deck grid and button execution flow
+- [x] Task 10: Build lightweight button editor
+- [x] Task 11: Build import/export flow with preview confirmation
 
 ### Checkpoint: Core Product
 
 - [ ] `pnpm test` passes
-- [ ] `pnpm build` succeeds
-- [ ] Playwright covers first launch, deck rendering, button editing, and import/export
+- [x] `pnpm build` succeeds
+- [x] Playwright covers first launch, deck rendering, button editing, and import/export
 - [ ] Manual check confirms usable touch targets on phone and tablet viewports
 
 ### Phase 4: Trust, Safety, and PWA Finish
 
-- [ ] Task 12: Add OBS state feedback and reconnect/error states
-- [ ] Task 13: Add deliberate confirmation for dangerous actions
-- [ ] Task 14: Configure PWA manifest, service worker behavior, and install polish
+- [x] Task 12: Add OBS state feedback and reconnect/error states
+- [x] Task 13: Add deliberate confirmation for dangerous actions
+- [x] Task 14: Configure PWA manifest, service worker behavior, and install polish
 - [ ] Task 15: Final accessibility, responsive, and e2e verification pass
 
 ### Checkpoint: Complete
