@@ -1,7 +1,18 @@
-import { getDeckSlotCount, type DeckConfig } from "./types";
+import type { DeckConfig } from "./types";
 import { DeckButton } from "./deck-button";
 import type { ObsState } from "../obs/types";
 import { cn } from "../../lib/utils";
+
+function getNextAvailableSlot(slots: number[]) {
+  const usedSlots = new Set(slots);
+  let nextSlot = 0;
+
+  while (usedSlots.has(nextSlot)) {
+    nextSlot += 1;
+  }
+
+  return nextSlot;
+}
 
 export function DeckGrid({
   deck,
@@ -17,8 +28,7 @@ export function DeckGrid({
   className?: string;
 }) {
   const sortedButtons = [...deck.buttons].sort((left, right) => left.slot - right.slot);
-  const totalSlots = getDeckSlotCount(deck.grid);
-  const nextSlot = sortedButtons.length < totalSlots ? sortedButtons.length : null;
+  const nextSlot = getNextAvailableSlot(sortedButtons.map((button) => button.slot));
 
   return (
     <div
@@ -38,15 +48,13 @@ export function DeckGrid({
           onPress={() => onPressSlot(button.slot)}
         />
       ))}
-      {nextSlot !== null ? (
-        <DeckButton
-          key={`placeholder-${nextSlot}`}
-          slot={nextSlot}
-          isBusy={activeSlot === nextSlot}
-          obsState={obsState}
-          onPress={() => onPressSlot(nextSlot)}
-        />
-      ) : null}
+      <DeckButton
+        key={`placeholder-${nextSlot}`}
+        slot={nextSlot}
+        isBusy={activeSlot === nextSlot}
+        obsState={obsState}
+        onPress={() => onPressSlot(nextSlot)}
+      />
     </div>
   );
 }

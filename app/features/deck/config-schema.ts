@@ -3,7 +3,6 @@ import {
   DEFAULT_DECK_CONFIG,
   WEBDECK_ICON_ALLOWLIST,
   type DeckIconSize,
-  getDeckSlotCount,
   type DeckButton,
   type DeckConfig,
   type DeckGrid,
@@ -203,8 +202,6 @@ function parseButtons(input: unknown, grid: DeckGrid, issues: string[]): DeckBut
 
   const seenIds = new Set<string>();
   const seenSlots = new Set<number>();
-  const maxSlot = getDeckSlotCount(grid) - 1;
-
   return input.flatMap((item, index) => {
     if (!isRecord(item)) {
       issues.push(`Button at index ${index} must be an object.`);
@@ -224,8 +221,8 @@ function parseButtons(input: unknown, grid: DeckGrid, issues: string[]): DeckBut
 
     if (!Number.isInteger(slot)) {
       issues.push(`Button "${id || index}" has an invalid slot.`);
-    } else if (slot < 0 || slot > maxSlot) {
-      issues.push(`Button slot ${slot} is outside the ${grid.columns}x${grid.rows} grid.`);
+    } else if (slot < 0) {
+      issues.push(`Button slot ${slot} must be zero or greater.`);
     } else if (seenSlots.has(slot)) {
       issues.push(`Found duplicate button slot ${slot}.`);
     } else {
