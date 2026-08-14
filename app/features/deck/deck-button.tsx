@@ -5,6 +5,12 @@ import type { DeckButton as DeckButtonModel } from "./types";
 import type { ObsState } from "../obs/types";
 import { getDeckButtonStateMeta } from "./deck-button-state";
 
+const iconSizeClassMap = {
+  sm: "size-8",
+  md: "size-10",
+  lg: "size-12",
+} as const;
+
 export function DeckButton({
   slot,
   button,
@@ -18,8 +24,9 @@ export function DeckButton({
   obsState?: ObsState;
   onPress: () => void;
 }) {
+  const buttonLabel = button?.label.trim();
   const accessibleName = button
-    ? `Slot ${slot + 1}: ${button.label}`
+    ? `Slot ${slot + 1}: ${buttonLabel || button.icon.name}`
     : `Slot ${slot + 1}: Empty slot`;
   const stateMeta = button && obsState ? getDeckButtonStateMeta(button, obsState) : undefined;
   const isDisabled = Boolean(isBusy || stateMeta?.isDisabled);
@@ -44,7 +51,10 @@ export function DeckButton({
         <div
           className="flex h-full min-h-0 items-center justify-center rounded-[calc(1.75rem-2px)] p-5 text-center"
         >
-          <LucideIcon className="size-10 text-foreground" name={button.icon.name} />
+          <LucideIcon
+            className={cn(iconSizeClassMap[button.iconSize ?? "md"], "text-foreground")}
+            name={button.icon.name}
+          />
         </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-[calc(1.75rem-2px)]">

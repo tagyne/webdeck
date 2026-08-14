@@ -1,5 +1,5 @@
 import { db, type PreferencesRecord, type WebdeckDatabase } from "./database";
-import type { DeckConfig } from "../features/deck/types";
+import { normalizeDeckConfig, type DeckConfig } from "../features/deck/types";
 
 export type DeckRepository = {
   get: (id?: string) => Promise<DeckConfig | undefined>;
@@ -14,10 +14,11 @@ export type PreferencesRepository = {
 export function createDeckRepository(database: WebdeckDatabase = db): DeckRepository {
   return {
     async get(id = "main-deck") {
-      return database.decks.get(id);
+      const deck = await database.decks.get(id);
+      return deck ? normalizeDeckConfig(deck) : undefined;
     },
     async save(deck) {
-      await database.decks.put(deck);
+      await database.decks.put(normalizeDeckConfig(deck));
     },
   };
 }

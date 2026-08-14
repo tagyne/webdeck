@@ -1,6 +1,8 @@
 import {
+  DECK_ICON_SIZES,
   DEFAULT_DECK_CONFIG,
   WEBDECK_ICON_ALLOWLIST,
+  type DeckIconSize,
   getDeckSlotCount,
   type DeckButton,
   type DeckConfig,
@@ -34,6 +36,7 @@ export type WebdeckExportButton = {
     type: string;
     name: string;
   };
+  iconSize?: string;
   color: string;
   action: WebdeckExportAction;
 };
@@ -96,6 +99,7 @@ export function normalizeDeckExport(
         slot: button.slot,
         label: button.label,
         icon: button.icon,
+        iconSize: button.iconSize,
         color: button.color,
         action: button.action,
       })),
@@ -231,15 +235,11 @@ function parseButtons(input: unknown, grid: DeckGrid, issues: string[]): DeckBut
     const icon = parseIcon(item.icon, id || `button ${index}`, issues);
     const action = parseAction(item.action, id || `button ${index}`, issues);
 
-    if (!isNonEmptyString(item.label)) {
-      issues.push(`Button "${id || index}" is missing a label.`);
-    }
-
     if (!isNonEmptyString(item.color)) {
       issues.push(`Button "${id || index}" is missing a color.`);
     }
 
-    if (!id || !Number.isInteger(slot) || !icon || !action || !isNonEmptyString(item.label) || !isNonEmptyString(item.color)) {
+    if (!id || !Number.isInteger(slot) || !icon || !action || !isNonEmptyString(item.color)) {
       return [];
     }
 
@@ -247,13 +247,20 @@ function parseButtons(input: unknown, grid: DeckGrid, issues: string[]): DeckBut
       {
         id,
         slot,
-        label: item.label,
+        label: typeof item.label === "string" ? item.label.trim() : "",
         icon,
+        iconSize: parseIconSize(item.iconSize),
         color: item.color,
         action,
       },
     ];
   });
+}
+
+function parseIconSize(input: unknown): DeckIconSize {
+  return typeof input === "string" && DECK_ICON_SIZES.includes(input as DeckIconSize)
+    ? (input as DeckIconSize)
+    : "md";
 }
 
 function parseIcon(input: unknown, buttonId: string, issues: string[]): IconRef | null {
