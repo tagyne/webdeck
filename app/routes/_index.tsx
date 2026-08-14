@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "zustand";
 
-import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
@@ -12,6 +11,7 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { Separator } from "../components/ui/separator";
+import { toast } from "../components/ui/toast";
 import { getBrowserTestHarnessProps } from "../testing/browser-test-harness";
 import { ButtonEditor } from "../features/deck/button-editor";
 import {
@@ -110,6 +110,7 @@ export function WebdeckApp({
   const hasAutoOpenedConnectionDialogRef = useRef(false);
   const autoConnectKeyRef = useRef<string>();
   const dangerousConfirmButtonRef = useRef<HTMLButtonElement>(null);
+  const lastBlockedActionToastAtRef = useRef(0);
   const [submitError, setSubmitError] = useState<string>();
   const [isSubmittingConnection, setIsSubmittingConnection] = useState(false);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
@@ -132,7 +133,7 @@ export function WebdeckApp({
   const mutedInputs = useStore(obsStore, (state) => state.mutedInputs);
   const visibleSources = useStore(obsStore, (state) => state.visibleSources);
   const lastError = useStore(obsStore, (state) => state.lastError);
-  const [actionMessage, setActionMessage] = useState<string>();
+  const previousConnectionStatusRef = useRef(connectionStatus);
 
   const summary = useMemo(() => {
     return [
@@ -208,6 +209,39 @@ export function WebdeckApp({
     }
   }, [pendingDangerousSlot]);
 
+  useEffect(() => {
+    const previousStatus = previousConnectionStatusRef.current;
+
+    if (!connection) {
+      previousConnectionStatusRef.current = connectionStatus;
+      return;
+    }
+
+    if (
+      (previousStatus === "connected" || previousStatus === "connecting")
+      && (connectionStatus === "disconnected" || connectionStatus === "error")
+    ) {
+      toast.add({
+        type: "error",
+        title: "OBS connection lost",
+        description: lastError ?? "Reconnect OBS to restore trusted button feedback and action execution.",
+      });
+    }
+
+    if (
+      (previousStatus === "disconnected" || previousStatus === "error")
+      && connectionStatus === "connected"
+    ) {
+      toast.add({
+        type: "success",
+        title: "OBS reconnected",
+        description: "Deck actions are available again.",
+      });
+    }
+
+    previousConnectionStatusRef.current = connectionStatus;
+  }, [connection, connectionStatus, lastError]);
+
   const isConnectionLoading = connectionLoadStatus === "idle" || connectionLoadStatus === "loading";
 
   useEffect(() => {
@@ -267,25 +301,31 @@ export function WebdeckApp({
 
     if (!button) {
       setPendingDangerousSlot(null);
-      setActionMessage(undefined);
       setEditingSlot(slot);
       return;
     }
 
     if (connectionStatus !== "connected") {
-      setActionMessage("Actions are paused until OBS reconnects.");
+      const now = Date.now();
+
+      if (now - lastBlockedActionToastAtRef.current > 1_500) {
+        toast.add({
+          type: "info",
+          description: "Actions are paused until OBS reconnects.",
+        });
+        lastBlockedActionToastAtRef.current = now;
+      }
+
       return;
     }
 
     if (isDangerousDeckAction(button.action)) {
       setPendingDangerousSlot(slot);
-      setActionMessage(undefined);
       return;
     }
 
     setPendingDangerousSlot(null);
     setActiveSlot(slot);
-    setActionMessage(undefined);
 
     try {
       await runDeckAction(obsClient, button.action);
@@ -307,7 +347,6 @@ export function WebdeckApp({
 
     setActiveSlot(pendingDangerousSlot);
     setPendingDangerousSlot(null);
-    setActionMessage(undefined);
 
     try {
       await runDeckAction(obsClient, button.action);
@@ -420,41 +459,26 @@ export function WebdeckApp({
           </div>
         </div>
 
-        {(connectionStatus !== "connected" && connection) || actionMessage || pendingDangerousSlot !== null ? (
+        {pendingDangerousSlot !== null ? (
           <div className="flex flex-col gap-3">
-            {connectionStatus !== "connected" && connection ? (
-              <Alert>
-                <AlertTitle>OBS connection lost</AlertTitle>
-                <AlertDescription>
-                  {lastError ?? "Reconnect OBS to restore trusted button feedback and action execution."}
-                </AlertDescription>
-              </Alert>
-            ) : null}
-            {actionMessage ? (
-              <Alert>
-                <AlertDescription>{actionMessage}</AlertDescription>
-              </Alert>
-            ) : null}
-            {pendingDangerousSlot !== null ? (
-              <Alert variant="destructive">
-                <AlertTitle>Confirm before running this live action</AlertTitle>
-                <AlertDescription>
-                  <p>Stop stream needs an extra confirmation to avoid accidental taps during a show.</p>
-                  <div className="mt-3 flex flex-wrap gap-3">
-                    <Button
-                      ref={dangerousConfirmButtonRef}
-                      variant="destructive"
-                      onClick={handleConfirmDangerousAction}
-                    >
-                      Confirm stop stream
-                    </Button>
-                    <Button variant="outline" onClick={() => setPendingDangerousSlot(null)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            ) : null}
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4">
+              <p className="text-sm font-medium text-foreground">Confirm before running this live action</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Stop stream needs an extra confirmation to avoid accidental taps during a show.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <Button
+                  ref={dangerousConfirmButtonRef}
+                  variant="destructive"
+                  onClick={handleConfirmDangerousAction}
+                >
+                  Confirm stop stream
+                </Button>
+                <Button variant="outline" onClick={() => setPendingDangerousSlot(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
           </div>
         ) : null}
 

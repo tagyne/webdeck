@@ -10,6 +10,7 @@ import {
 import type { Route } from "./+types/root";
 import appStylesHref from "./app.css?url";
 import { PwaStatusPrompt } from "./components/pwa-status-prompt";
+import { Toaster } from "./components/ui/toast";
 
 export function links() {
   return [
@@ -42,6 +43,7 @@ export default function App() {
     <>
       <Outlet />
       <PwaStatusPrompt />
+      <Toaster />
     </>
   );
 }
