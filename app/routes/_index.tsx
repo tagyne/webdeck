@@ -321,6 +321,11 @@ export function WebdeckApp({
     setEditingSlot(null);
   };
 
+  const handleDeleteButton = async (nextDeck: ReturnType<typeof createStarterDeckConfig>) => {
+    await deckStore.getState().save(nextDeck);
+    setEditingSlot(null);
+  };
+
   const handleExport = () => {
     if (!deck) {
       return;
@@ -494,12 +499,13 @@ export function WebdeckApp({
             <DialogTitle>Edit deck slot</DialogTitle>
             <DialogDescription>Update the selected slot without leaving the deck grid.</DialogDescription>
           </DialogHeader>
-          {connection && deck && editingSlot !== null ? (
+          {deck && editingSlot !== null ? (
             <ButtonEditor
               button={deck.buttons.find((item) => item.slot === editingSlot)}
               deck={deck}
               slot={editingSlot}
               onCancel={() => setEditingSlot(null)}
+              onDelete={handleDeleteButton}
               onSave={handleSaveButton}
             />
           ) : null}
