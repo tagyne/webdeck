@@ -3,100 +3,10 @@ import {
   type DeckButtonAction,
   isDangerousDeckAction,
 } from "../obs/types";
+import { iconNames } from "lucide-react/dynamic";
 
-const AUDIO_ICONS = [
-  "mic",
-  "mic-off",
-  "volume-2",
-  "volume-x",
-  "audio-lines",
-  "audio-waveform",
-  "headphones",
-  "speaker",
-] as const;
-
-const VIDEO_ICONS = [
-  "video",
-  "video-off",
-  "camera",
-  "webcam",
-  "eye",
-  "eye-off",
-  "scan-eye",
-  "radio",
-  "clapperboard",
-  "monitor",
-  "monitor-play",
-  "image",
-] as const;
-
-const TRANSPORT_ICONS = [
-  "play",
-  "pause",
-  "square",
-  "circle-stop",
-  "disc-3",
-  "skip-back",
-  "skip-forward",
-  "rotate-ccw",
-  "rotate-cw",
-  "arrow-left",
-  "arrow-right",
-  "arrow-up",
-  "arrow-down",
-  "chevrons-left-right",
-] as const;
-
-const LAYOUT_ICONS = [
-  "settings",
-  "sliders-horizontal",
-  "cog",
-  "wrench",
-  "layout-grid",
-  "grid-3x3",
-  "panels-top-left",
-  "panel-top",
-  "panel-left",
-  "panel-right",
-] as const;
-
-const DEVICE_ICONS = [
-  "laptop",
-  "tablet-smartphone",
-  "smartphone",
-  "mouse-pointer-click",
-  "hand",
-  "sparkles",
-  "zap",
-  "triangle-alert",
-  "circle-check-big",
-] as const;
-
-const STATUS_ICONS = [
-  "info",
-  "badge-alert",
-  "shield-alert",
-] as const;
-
-export const WEBDECK_ICON_GROUPS = [
-  { label: "Audio", icons: AUDIO_ICONS },
-  { label: "Video & Scene", icons: VIDEO_ICONS },
-  { label: "Transport & Toggle", icons: TRANSPORT_ICONS },
-  { label: "Layout & Settings", icons: LAYOUT_ICONS },
-  { label: "Devices & Utility", icons: DEVICE_ICONS },
-  { label: "Status & Alert", icons: STATUS_ICONS },
-] as const;
-
-export const WEBDECK_ICON_ALLOWLIST = [
-  ...AUDIO_ICONS,
-  ...VIDEO_ICONS,
-  ...TRANSPORT_ICONS,
-  ...LAYOUT_ICONS,
-  ...DEVICE_ICONS,
-  ...STATUS_ICONS,
-] as const;
-
-export type WebdeckIconName = (typeof WEBDECK_ICON_ALLOWLIST)[number];
+export const WEBDECK_ICON_NAMES = iconNames;
+export type WebdeckIconName = (typeof iconNames)[number];
 export const DECK_ICON_SIZES = ["sm", "md", "lg"] as const;
 export type DeckIconSize = (typeof DECK_ICON_SIZES)[number];
 

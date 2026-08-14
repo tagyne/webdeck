@@ -1,19 +1,15 @@
 import {
-  ComboboxCollection,
   Combobox,
   ComboboxContent,
   ComboboxEmpty,
-  ComboboxGroup,
   ComboboxInput,
   ComboboxItem,
-  ComboboxLabel,
   ComboboxList,
-  ComboboxSeparator,
 } from "../../components/ui/combobox";
 import { FieldContent } from "../../components/ui/field";
 import { InputGroupAddon } from "../../components/ui/input-group";
 import { LucideIcon } from "./lucide-icon";
-import { WEBDECK_ICON_ALLOWLIST, WEBDECK_ICON_GROUPS, type WebdeckIconName } from "./types";
+import { WEBDECK_ICON_NAMES, type WebdeckIconName } from "./types";
 
 export function DeckIconCombobox({
   id,
@@ -33,7 +29,7 @@ export function DeckIconCombobox({
   return (
     <Combobox
       itemToStringValue={(iconName) => iconName}
-      items={WEBDECK_ICON_ALLOWLIST}
+      items={WEBDECK_ICON_NAMES}
       value={value}
       onValueChange={(nextValue) => onValueChange((nextValue ?? "mic") as WebdeckIconName)}
     >
@@ -53,24 +49,14 @@ export function DeckIconCombobox({
       <ComboboxContent>
         <ComboboxEmpty>No icon found.</ComboboxEmpty>
         <ComboboxList>
-          {WEBDECK_ICON_GROUPS.map((group, index) => (
-            <div key={group.label}>
-              <ComboboxGroup>
-                <ComboboxLabel>{group.label}</ComboboxLabel>
-                <ComboboxCollection items={group.icons}>
-                  {(iconName) => (
-                    <ComboboxItem key={iconName} value={iconName}>
-                      <LucideIcon aria-hidden="true" name={iconName} />
-                      <FieldContent className="min-w-0">
-                        <span className="font-medium">{iconName}</span>
-                      </FieldContent>
-                    </ComboboxItem>
-                  )}
-                </ComboboxCollection>
-              </ComboboxGroup>
-              {index < WEBDECK_ICON_GROUPS.length - 1 ? <ComboboxSeparator /> : null}
-            </div>
-          ))}
+          {(iconName) => (
+            <ComboboxItem key={iconName} value={iconName}>
+              <LucideIcon aria-hidden="true" name={iconName} />
+              <FieldContent className="min-w-0">
+                <span className="font-medium">{iconName}</span>
+              </FieldContent>
+            </ComboboxItem>
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>

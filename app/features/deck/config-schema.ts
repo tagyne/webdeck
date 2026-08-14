@@ -1,7 +1,7 @@
 import {
   DECK_ICON_SIZES,
   DEFAULT_DECK_CONFIG,
-  WEBDECK_ICON_ALLOWLIST,
+  WEBDECK_ICON_NAMES,
   type DeckIconSize,
   type DeckButton,
   type DeckConfig,
@@ -271,7 +271,7 @@ function parseIcon(input: unknown, buttonId: string, issues: string[]): IconRef 
     return null;
   }
 
-  if (!isNonEmptyString(input.name) || !WEBDECK_ICON_ALLOWLIST.includes(input.name as IconRef["name"])) {
+  if (!isNonEmptyString(input.name) || !WEBDECK_ICON_NAMES.includes(input.name as IconRef["name"])) {
     issues.push(`Button "${buttonId}" uses an unsupported icon "${String(input.name)}".`);
     return null;
   }

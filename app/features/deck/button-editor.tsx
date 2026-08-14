@@ -28,10 +28,10 @@ import { DeckIconCombobox } from "./deck-icon-combobox";
 import {
   DECK_ICON_SIZES,
   OBS_ACTION_TYPES,
-  WEBDECK_ICON_ALLOWLIST,
   type DeckButton,
   type DeckConfig,
   type DeckIconSize,
+  type WebdeckIconName,
 } from "./types";
 import type { DeckButtonAction } from "../obs/types";
 
@@ -335,7 +335,7 @@ export function ButtonEditor({
                           ariaInvalid={false}
                           id="button-icon"
                           name={field.name}
-                          value={field.value as (typeof WEBDECK_ICON_ALLOWLIST)[number]}
+                          value={field.value as WebdeckIconName}
                           onValueChange={field.onChange}
                         />
                       )}
