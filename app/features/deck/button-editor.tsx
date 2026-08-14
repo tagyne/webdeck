@@ -54,43 +54,6 @@ const ACTION_LABELS: Record<DeckButtonAction["type"], string> = {
   toggleRecordPause: "Toggle record pause",
 };
 
-function getPreviewMeta({
-  actionType,
-  iconName,
-  iconSize,
-  inputName,
-  sceneName,
-  sourceName,
-}: {
-  actionType: DeckButtonAction["type"];
-  iconName: string;
-  iconSize: DeckIconSize;
-  inputName: string;
-  sceneName: string;
-  sourceName: string;
-}) {
-  const rows = [
-    { label: "Icon", value: iconName },
-    { label: "Icon Size", value: iconSize.toUpperCase() },
-    { label: "Action", value: ACTION_LABELS[actionType] },
-  ];
-
-  if (actionType === "toggleInputMute") {
-    rows.push({ label: "Input Name", value: inputName.trim() || "—" });
-  }
-
-  if (actionType === "setCurrentProgramScene") {
-    rows.push({ label: "Scene Name", value: sceneName.trim() || "—" });
-  }
-
-  if (actionType === "toggleSourceVisibility") {
-    rows.push({ label: "Scene Name", value: sceneName.trim() || "—" });
-    rows.push({ label: "Source Name", value: sourceName.trim() || "—" });
-  }
-
-  return rows;
-}
-
 function getInitialValues(button?: DeckButton): EditorFormValues {
   const action = button?.action;
 
@@ -253,15 +216,6 @@ export function ButtonEditor({
       sourceName,
     }),
   }), [actionType, button?.color, button?.id, iconName, iconSize, inputName, label, sceneName, slot, sourceName]);
-
-  const previewMeta = useMemo(() => getPreviewMeta({
-    actionType,
-    iconName,
-    iconSize,
-    inputName,
-    sceneName,
-    sourceName,
-  }), [actionType, iconName, iconSize, inputName, sceneName, sourceName]);
 
   useEffect(() => {
     labelInputRef.current?.focus();
@@ -445,22 +399,6 @@ export function ButtonEditor({
                     isBusy={false}
                     onPress={() => undefined}
                   />
-                </div>
-                <div className="flex flex-col gap-2 text-sm">
-                  <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-                    <span className="text-muted-foreground">Label</span>
-                    <span className="truncate font-medium">{label.trim() || "—"}</span>
-                    {previewMeta.map((item) => (
-                      <div key={item.label} className="contents">
-                        <span className="text-muted-foreground">
-                          {item.label}
-                        </span>
-                        <span className="truncate font-medium">
-                          {item.value}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </CardContent>
             </Card>
