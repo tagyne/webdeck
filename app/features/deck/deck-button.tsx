@@ -49,12 +49,17 @@ export function DeckButton({
     >
       {button ? (
         <div
-          className="flex h-full min-h-0 items-center justify-center rounded-[calc(1.75rem-2px)] p-5 text-center"
+          className="flex h-full min-h-0 flex-col items-center justify-center gap-3 rounded-[calc(1.75rem-2px)] p-5 text-center"
         >
           <LucideIcon
             className={cn(iconSizeClassMap[button.iconSize ?? "md"], "text-foreground")}
             name={button.icon.name}
           />
+          {buttonLabel ? (
+            <p className="max-w-full truncate text-sm font-medium text-foreground">
+              {buttonLabel}
+            </p>
+          ) : null}
         </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-[calc(1.75rem-2px)]">
