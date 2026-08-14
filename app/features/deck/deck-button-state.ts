@@ -2,20 +2,45 @@ import type { DeckButton } from "./types";
 import type { ObsState } from "../obs/types";
 import { toSourceKey } from "../obs/obs-client";
 
-export function getDeckButtonStateLabel(button: DeckButton, obsState: ObsState) {
+export function getDeckButtonStateMeta(button: DeckButton, obsState: ObsState) {
   switch (button.action.type) {
     case "toggleInputMute":
-      return obsState.mutedInputs[button.action.inputName] ? "Muted" : "Live";
+      return {
+        isToggle: true,
+        isActive: !obsState.mutedInputs[button.action.inputName],
+        isDisabled: false,
+      };
     case "setCurrentProgramScene":
-      return obsState.activeSceneName === button.action.sceneName ? "Active" : "Ready";
+      return {
+        isToggle: true,
+        isActive: obsState.activeSceneName === button.action.sceneName,
+        isDisabled: false,
+      };
     case "toggleSourceVisibility": {
       const visible = obsState.visibleSources[toSourceKey(button.action.sceneName, button.action.sourceName)];
-      return visible === false ? "Hidden" : "Visible";
+      return {
+        isToggle: true,
+        isActive: visible !== false,
+        isDisabled: false,
+      };
     }
     case "startStream":
+      return {
+        isToggle: false,
+        isActive: false,
+        isDisabled: obsState.isStreaming,
+      };
     case "stopStream":
-      return obsState.isStreaming ? "Live" : "Offline";
+      return {
+        isToggle: false,
+        isActive: false,
+        isDisabled: !obsState.isStreaming,
+      };
     case "toggleRecordPause":
-      return obsState.isRecordPaused ? "Paused" : "Recording";
+      return {
+        isToggle: true,
+        isActive: obsState.isRecordPaused,
+        isDisabled: false,
+      };
   }
 }

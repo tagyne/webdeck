@@ -1,15 +1,18 @@
 import { getDeckSlotCount, type DeckConfig } from "./types";
 import { DeckButton } from "./deck-button";
+import type { ObsState } from "../obs/types";
 import { cn } from "../../lib/utils";
 
 export function DeckGrid({
   deck,
   activeSlot,
+  obsState,
   onPressSlot,
   className,
 }: {
   deck: DeckConfig;
   activeSlot?: number | null;
+  obsState: ObsState;
   onPressSlot: (slot: number) => void;
   className?: string;
 }) {
@@ -30,6 +33,7 @@ export function DeckGrid({
             slot={slot}
             button={button}
             isBusy={activeSlot === slot}
+            obsState={obsState}
             onPress={() => onPressSlot(slot)}
           />
         );
