@@ -27,6 +27,7 @@ type ImportPreview = {
 export function ImportExportPanel({
   error,
   preview,
+  showExport = true,
   onExport,
   onImportFile,
   onCancelPreview,
@@ -34,6 +35,7 @@ export function ImportExportPanel({
 }: {
   error?: string;
   preview?: ImportPreview;
+  showExport?: boolean;
   onExport: () => void;
   onImportFile: (file: File) => Promise<void>;
   onCancelPreview: () => void;
@@ -48,12 +50,12 @@ export function ImportExportPanel({
   }, [preview]);
 
   return (
-    <Card className="rounded-[1.75rem] border border-border/70 bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+    <Card>
       <CardHeader>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           Deck transfer
         </p>
-        <CardTitle className="font-display text-3xl text-[--color-ink]">Import / export</CardTitle>
+        <CardTitle className="text-3xl">Import / export</CardTitle>
         <CardDescription>
           Back up the current deck as a `.webdeck.json` file or preview a new file before replacing saved local data.
         </CardDescription>
@@ -61,9 +63,11 @@ export function ImportExportPanel({
 
       <CardContent className="flex flex-col gap-5">
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button className="sm:flex-1" variant="secondary" onClick={onExport}>
-            Export deck
-          </Button>
+          {showExport ? (
+            <Button className="sm:flex-1" variant="secondary" onClick={onExport}>
+              Export deck
+            </Button>
+          ) : null}
           <FieldGroup className="sm:flex-1">
             <Field>
               <FieldLabel htmlFor="deck-import-file">Import deck file</FieldLabel>
@@ -97,15 +101,15 @@ export function ImportExportPanel({
         {preview ? (
           <Card
             aria-label="Import preview"
-            className="border border-border/70 bg-[--color-surface] shadow-none"
+            className="border bg-muted/30 shadow-none"
             role="dialog"
             size="sm"
           >
             <CardHeader>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 Preview
               </p>
-              <CardTitle className="text-2xl font-semibold text-[--color-ink]">{preview.deckName}</CardTitle>
+              <CardTitle className="text-2xl font-semibold">{preview.deckName}</CardTitle>
               <CardDescription>{preview.gridLabel}</CardDescription>
               <CardDescription>{preview.buttonCountLabel}</CardDescription>
               <CardDescription>

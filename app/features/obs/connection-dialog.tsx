@@ -72,7 +72,7 @@ export function ConnectionDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl rounded-[1.75rem] border border-border/70 bg-[radial-gradient(circle_at_top_left,_rgba(234,88,12,0.12),_transparent_35%),linear-gradient(135deg,_rgba(255,255,255,0.99),_rgba(244,239,230,0.98))] p-6 sm:p-7">
+      <DialogContent className="max-w-2xl p-6 sm:p-7">
         <DialogHeader>
           <div className="flex items-center justify-between gap-3 pr-10">
             <div className="flex flex-col gap-2">
@@ -111,7 +111,7 @@ export function ConnectionDialog({
         </Card>
 
         {isLoading ? (
-          <div className="px-1 py-2 text-sm text-slate-600">Loading saved connection settings...</div>
+          <div className="px-1 py-2 text-sm text-muted-foreground">Loading saved connection settings...</div>
         ) : (
           <ConnectionForm
             defaultValues={connection}

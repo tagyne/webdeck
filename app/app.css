@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -6,16 +5,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-  --font-display: "Instrument Serif", serif;
-  --font-sans: "Space Grotesk", sans-serif;
-}
-
 :root {
-  --color-surface: #f4efe6;
-  --color-ink: #172033;
-  --color-line: rgba(23, 32, 51, 0.12);
-  --color-signal: #c2410c;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -52,12 +42,6 @@
 
 html {
   color-scheme: light;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  background: var(--color-surface);
 }
 
 * {
@@ -154,5 +138,8 @@ a {
   }
   html {
     @apply font-sans;
+  }
+  body {
+    margin: 0;
   }
 }

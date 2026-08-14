@@ -158,16 +158,15 @@ export function ButtonEditor({
   return (
     <Card
       aria-label={`Edit slot ${slot + 1}`}
-      className="rounded-[1.75rem] border border-border/70 bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
       role="region"
     >
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Deck editor
             </p>
-            <CardTitle className="font-display text-3xl text-[--color-ink]">
+            <CardTitle className="text-3xl">
               Edit slot {slot + 1}
             </CardTitle>
             <CardDescription>

@@ -58,13 +58,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[--color-surface] px-6 py-16 text-[--color-ink]">
-      <div className="max-w-md space-y-3 rounded-3xl border border-[--color-line] bg-white/90 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[--color-signal]">
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16 text-foreground">
+      <div className="max-w-md rounded-xl border bg-card p-8 text-card-foreground shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           Webdeck
         </p>
-        <h1 className="font-display text-3xl">{title}</h1>
-        <p className="text-sm text-slate-700">{details}</p>
+        <h1 className="mt-3 text-3xl font-semibold">{title}</h1>
+        <p className="mt-3 text-sm text-muted-foreground">{details}</p>
       </div>
     </main>
   );

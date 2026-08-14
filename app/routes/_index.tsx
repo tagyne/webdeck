@@ -5,12 +5,13 @@ import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { Separator } from "../components/ui/separator";
 import { getBrowserTestHarnessProps } from "../testing/browser-test-harness";
 import { ButtonEditor } from "../features/deck/button-editor";
 import {
@@ -113,8 +114,8 @@ export function WebdeckApp({
   const [isSubmittingConnection, setIsSubmittingConnection] = useState(false);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isImportExportMode, setIsImportExportMode] = useState(false);
   const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
   const [pendingDangerousSlot, setPendingDangerousSlot] = useState<number | null>(null);
   const [importError, setImportError] = useState<string>();
@@ -359,131 +360,136 @@ export function WebdeckApp({
     }
     setImportPreview(undefined);
     setImportError(undefined);
-    setIsImportExportMode(false);
     setIsEditMode(false);
     setEditingSlot(null);
     setPendingDangerousSlot(null);
+    setIsImportDialogOpen(false);
   };
 
   return (
-    <main className="min-h-screen bg-[--color-surface] px-4 py-6 text-[--color-ink] sm:px-6 sm:py-10">
-      <section className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl flex-col gap-6 rounded-[2rem] border border-[--color-line] bg-[radial-gradient(circle_at_top_left,_rgba(234,88,12,0.18),_transparent_35%),linear-gradient(135deg,_rgba(255,255,255,0.98),_rgba(244,239,230,0.96))] p-5 shadow-[0_32px_100px_rgba(15,23,42,0.12)] sm:p-8 lg:flex-row lg:gap-8">
-        <div className="flex flex-col gap-6 lg:w-[22rem] lg:shrink-0 xl:w-[24rem]">
-          <div className="flex flex-col gap-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[--color-signal]">
-              Webdeck OBS PWA
-            </p>
-            <h1 className="max-w-3xl font-display text-4xl leading-none sm:text-5xl">
-              {deck?.name ?? "Main OBS Deck"}
-            </h1>
-            <p className="max-w-2xl text-base leading-7 text-slate-700">
-              Large tap targets, saved connection settings, and local-first deck data stay accessible while the control grid keeps the full remaining canvas.
+    <main className="flex min-h-screen flex-col bg-background text-foreground">
+      <header className="flex flex-col gap-4 px-4 py-4 sm:px-6 sm:py-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            <ConnectionStatusBadge
+              hasSavedConnection={Boolean(connection)}
+              status={connectionStatus}
+            />
+            <p className="truncate text-sm text-muted-foreground">
+              {connection ? `${connection.host}:${connection.port}` : "No OBS endpoint saved"} · {summary}
             </p>
           </div>
 
-          <Card className="rounded-[1.75rem] border border-border/70 bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-            <CardHeader>
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Connection
-                  </p>
-                  <CardTitle className="text-2xl">
-                    {connection ? `${connection.host}:${connection.port}` : "Configure OBS"}
-                  </CardTitle>
-                  <CardDescription>{summary}</CardDescription>
-                </div>
-                <ConnectionStatusBadge
-                  hasSavedConnection={Boolean(connection)}
-                  status={connectionStatus}
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <Button className="w-full" onClick={() => setIsConnectionDialogOpen(true)}>
-                {connection ? "Manage OBS connection" : "Connect to OBS"}
-              </Button>
-              {connectionStatus !== "connected" && connection ? (
-                <Alert>
-                  <AlertTitle>OBS connection lost</AlertTitle>
-                  <AlertDescription>
-                    <p>
-                      {lastError ?? "Reconnect OBS to restore trusted button feedback and action execution."}
-                    </p>
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-              {actionMessage ? (
-                <Alert>
-                  <AlertDescription>{actionMessage}</AlertDescription>
-                </Alert>
-              ) : null}
-              {pendingDangerousSlot !== null ? (
-                <Alert variant="destructive">
-                  <AlertTitle>Confirm before running this live action</AlertTitle>
-                  <AlertDescription>
-                    <p>Stop stream needs an extra confirmation to avoid accidental taps during a show.</p>
-                    <div className="mt-3 flex flex-wrap gap-3">
-                      <Button
-                        ref={dangerousConfirmButtonRef}
-                        variant="destructive"
-                        onClick={handleConfirmDangerousAction}
-                      >
-                        Confirm stop stream
-                      </Button>
-                      <Button variant="outline" onClick={() => setPendingDangerousSlot(null)}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-            </CardContent>
-          </Card>
+          <div aria-label="Deck actions" className="flex flex-wrap items-center justify-end gap-2" role="group">
+            <Button
+              aria-pressed={isEditMode}
+              variant={isEditMode ? "default" : "outline"}
+              onClick={() => {
+                setIsEditMode((value) => !value);
+                setEditingSlot(null);
+                setPendingDangerousSlot(null);
+              }}
+            >
+              {isEditMode ? "Exit edit" : "Edit deck"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setImportError(undefined);
+                setImportPreview(undefined);
+                setIsImportDialogOpen(true);
+              }}
+            >
+              Import
+            </Button>
+            <Button variant="outline" onClick={handleExport}>
+              Export
+            </Button>
+            <Button onClick={() => setIsConnectionDialogOpen(true)}>
+              {connection ? "Manage OBS" : "Connect to OBS"}
+            </Button>
+          </div>
+        </div>
 
-          <Card className="rounded-[1.75rem] border border-border/70 bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-            <CardHeader>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Deck tools
-              </p>
-              <CardTitle>Editing and transfer</CardTitle>
-              <CardDescription>
-                Unused slots stay visible so the editor and import flows can land without reshaping the deck.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div aria-label="Deck tools" className="flex flex-wrap gap-3" role="group">
-                <Button
-                  aria-pressed={isEditMode}
-                  variant={isEditMode ? "default" : "secondary"}
-                  onClick={() => {
-                    setIsEditMode((value) => !value);
-                    setIsImportExportMode(false);
-                    setImportPreview(undefined);
-                    setImportError(undefined);
-                    setEditingSlot(null);
-                    setPendingDangerousSlot(null);
-                  }}
-                >
-                  {isEditMode ? "Exit edit deck" : "Edit deck"}
-                </Button>
-                <Button
-                  variant={isImportExportMode ? "default" : "secondary"}
-                  onClick={() => {
-                    setIsImportExportMode((value) => !value);
-                    setIsEditMode(false);
-                    setEditingSlot(null);
-                    setImportPreview(undefined);
-                    setImportError(undefined);
-                    setPendingDangerousSlot(null);
-                  }}
-                >
-                  {isImportExportMode ? "Close transfer" : "Import / export"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {(connectionStatus !== "connected" && connection) || actionMessage || pendingDangerousSlot !== null ? (
+          <div className="flex flex-col gap-3">
+            {connectionStatus !== "connected" && connection ? (
+              <Alert>
+                <AlertTitle>OBS connection lost</AlertTitle>
+                <AlertDescription>
+                  {lastError ?? "Reconnect OBS to restore trusted button feedback and action execution."}
+                </AlertDescription>
+              </Alert>
+            ) : null}
+            {actionMessage ? (
+              <Alert>
+                <AlertDescription>{actionMessage}</AlertDescription>
+              </Alert>
+            ) : null}
+            {pendingDangerousSlot !== null ? (
+              <Alert variant="destructive">
+                <AlertTitle>Confirm before running this live action</AlertTitle>
+                <AlertDescription>
+                  <p>Stop stream needs an extra confirmation to avoid accidental taps during a show.</p>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    <Button
+                      ref={dangerousConfirmButtonRef}
+                      variant="destructive"
+                      onClick={handleConfirmDangerousAction}
+                    >
+                      Confirm stop stream
+                    </Button>
+                    <Button variant="outline" onClick={() => setPendingDangerousSlot(null)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            ) : null}
+          </div>
+        ) : null}
 
+        <Separator />
+      </header>
+
+      <section className="flex min-h-0 flex-1 p-4 sm:p-6">
+        <div className="flex min-h-0 flex-1 flex-col">
+          {deck ? (
+            <DeckGrid
+              className="flex-1 auto-rows-fr"
+              deck={deck}
+              activeSlot={activeSlot}
+              obsState={obsStateSnapshot}
+              onPressSlot={handlePressSlot}
+            />
+          ) : (
+            <div className="grid flex-1 grid-cols-3 grid-rows-3 gap-3 sm:gap-4">
+              {Array.from({ length: 9 }, (_, slot) => (
+                <Button
+                  key={slot}
+                  aria-label={`Slot ${slot + 1}: Loading`}
+                  variant="ghost"
+                  className="h-full rounded-xl border border-dashed text-muted-foreground"
+                >
+                  Slot {slot + 1}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <Dialog open={editingSlot !== null} onOpenChange={(open) => {
+        if (!open) {
+          setEditingSlot(null);
+        }
+      }}
+      >
+        <DialogContent className="max-w-4xl p-0 sm:max-w-3xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Edit deck slot</DialogTitle>
+            <DialogDescription>Update the selected slot without leaving the deck grid.</DialogDescription>
+          </DialogHeader>
           {connection && deck && editingSlot !== null ? (
             <ButtonEditor
               button={deck.buttons.find((item) => item.slot === editingSlot)}
@@ -493,66 +499,37 @@ export function WebdeckApp({
               onSave={handleSaveButton}
             />
           ) : null}
+        </DialogContent>
+      </Dialog>
 
-          {connection && deck && isImportExportMode ? (
-            <ImportExportPanel
-              error={importError}
-              onCancelPreview={() => setImportPreview(undefined)}
-              onConfirmPreview={handleConfirmImport}
-              onExport={handleExport}
-              onImportFile={handleImportFile}
-              preview={importPreview
-                ? {
-                    deckName: importPreview.deck.name,
-                    gridLabel: `${importPreview.deck.grid.columns} x ${importPreview.deck.grid.rows}`,
-                    buttonCountLabel: `${importPreview.deck.buttons.length} configured button${importPreview.deck.buttons.length === 1 ? "" : "s"}`,
-                    hasConnection: Boolean(importPreview.connection),
-                  }
-                : undefined}
-            />
-          ) : null}
-        </div>
-
-        <aside className="flex min-h-[28rem] flex-1 flex-col rounded-[1.75rem] border border-slate-900/10 bg-slate-950 p-4 text-slate-100 shadow-[0_24px_80px_rgba(15,23,42,0.24)] sm:p-5 lg:min-h-0">
-          <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-            <div>
-              <span className="text-sm text-slate-300">Connection</span>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
-                {connection ? "local settings saved" : "setup required"}
-              </p>
-            </div>
-            <ConnectionStatusBadge
-              hasSavedConnection={Boolean(connection)}
-              status={connectionStatus}
-            />
-          </div>
-
-          <div className="mt-4 flex min-h-0 flex-1 flex-col">
-            {deck ? (
-              <DeckGrid
-                className="flex-1 auto-rows-fr"
-                deck={deck}
-                activeSlot={activeSlot}
-                obsState={obsStateSnapshot}
-                onPressSlot={handlePressSlot}
-              />
-            ) : (
-              <div className="grid flex-1 grid-cols-3 grid-rows-3 gap-3 sm:gap-4">
-                {Array.from({ length: 9 }, (_, slot) => (
-                  <Button
-                    key={slot}
-                    aria-label={`Slot ${slot + 1}: Loading`}
-                    variant="ghost"
-                    className="h-full rounded-[1.6rem] border border-dashed border-white/12 bg-white/6 text-slate-300"
-                  >
-                    Slot {slot + 1}
-                  </Button>
-                ))}
-              </div>
-            )}
-          </div>
-        </aside>
-      </section>
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent className="max-w-3xl p-0 sm:max-w-2xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Import deck</DialogTitle>
+            <DialogDescription>Import a saved deck file and preview it before replacing current local data.</DialogDescription>
+          </DialogHeader>
+          <ImportExportPanel
+            error={importError}
+            showExport={false}
+            onCancelPreview={() => {
+              setImportPreview(undefined);
+              setImportError(undefined);
+              setIsImportDialogOpen(false);
+            }}
+            onConfirmPreview={handleConfirmImport}
+            onExport={handleExport}
+            onImportFile={handleImportFile}
+            preview={importPreview
+              ? {
+                  deckName: importPreview.deck.name,
+                  gridLabel: `${importPreview.deck.grid.columns} x ${importPreview.deck.grid.rows}`,
+                  buttonCountLabel: `${importPreview.deck.buttons.length} configured button${importPreview.deck.buttons.length === 1 ? "" : "s"}`,
+                  hasConnection: Boolean(importPreview.connection),
+                }
+              : undefined}
+          />
+        </DialogContent>
+      </Dialog>
 
       <ConnectionDialog
         connection={connection}

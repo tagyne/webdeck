@@ -21,12 +21,12 @@ export function PwaStatusPrompt() {
     <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
       <section
         aria-live="polite"
-        className="pointer-events-auto w-full max-w-xl rounded-[1.75rem] border border-slate-900/10 bg-white/96 p-4 text-[--color-ink] shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur"
+        className="pointer-events-auto w-full max-w-xl rounded-xl border bg-card p-4 text-card-foreground shadow-sm backdrop-blur"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-signal]">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           Webdeck PWA
         </p>
-        <p className="mt-2 text-sm leading-6 text-slate-700">
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {offlineReady
             ? "This device is ready to show your saved deck while offline."
             : "A newer version of Webdeck is ready. Reload when you have a safe moment between live actions."}
