@@ -494,11 +494,7 @@ export function WebdeckApp({
         }
       }}
       >
-        <DialogContent className="max-w-4xl p-0 sm:max-w-3xl">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Edit deck slot</DialogTitle>
-            <DialogDescription>Update the selected slot without leaving the deck grid.</DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-4xl sm:max-w-3xl">
           {deck && editingSlot !== null ? (
             <ButtonEditor
               button={deck.buttons.find((item) => item.slot === editingSlot)}
