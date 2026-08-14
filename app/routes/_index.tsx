@@ -257,19 +257,23 @@ export function WebdeckApp({
   };
 
   const handlePressSlot = async (slot: number) => {
+    const button = deck?.buttons.find((item) => item.slot === slot);
+
     if (isEditMode) {
       setPendingDangerousSlot(null);
       setEditingSlot(slot);
       return;
     }
 
-    if (connectionStatus !== "connected") {
-      setActionMessage("Actions are paused until OBS reconnects.");
+    if (!button) {
+      setPendingDangerousSlot(null);
+      setActionMessage(undefined);
+      setEditingSlot(slot);
       return;
     }
 
-    const button = deck?.buttons.find((item) => item.slot === slot);
-    if (!button) {
+    if (connectionStatus !== "connected") {
+      setActionMessage("Actions are paused until OBS reconnects.");
       return;
     }
 

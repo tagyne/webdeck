@@ -16,6 +16,10 @@ export function DeckGrid({
   onPressSlot: (slot: number) => void;
   className?: string;
 }) {
+  const sortedButtons = [...deck.buttons].sort((left, right) => left.slot - right.slot);
+  const totalSlots = getDeckSlotCount(deck.grid);
+  const nextSlot = sortedButtons.length < totalSlots ? sortedButtons.length : null;
+
   return (
     <div
       className={cn("grid w-full content-start justify-start gap-4", className)}
@@ -24,20 +28,25 @@ export function DeckGrid({
         gridAutoRows: "11rem",
       }}
     >
-      {Array.from({ length: getDeckSlotCount(deck.grid) }, (_, slot) => {
-        const button = deck.buttons.find((item) => item.slot === slot);
-
-        return (
-          <DeckButton
-            key={slot}
-            slot={slot}
-            button={button}
-            isBusy={activeSlot === slot}
-            obsState={obsState}
-            onPress={() => onPressSlot(slot)}
-          />
-        );
-      })}
+      {sortedButtons.map((button) => (
+        <DeckButton
+          key={button.slot}
+          slot={button.slot}
+          button={button}
+          isBusy={activeSlot === button.slot}
+          obsState={obsState}
+          onPress={() => onPressSlot(button.slot)}
+        />
+      ))}
+      {nextSlot !== null ? (
+        <DeckButton
+          key={`placeholder-${nextSlot}`}
+          slot={nextSlot}
+          isBusy={activeSlot === nextSlot}
+          obsState={obsState}
+          onPress={() => onPressSlot(nextSlot)}
+        />
+      ) : null}
     </div>
   );
 }
