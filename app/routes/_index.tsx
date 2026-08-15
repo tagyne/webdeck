@@ -3,6 +3,7 @@ import { useStore } from "zustand";
 
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { ButtonGroup } from "../components/ui/button-group";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import {
   Dialog,
@@ -439,7 +440,7 @@ export function WebdeckApp({
   return (
     <main className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="flex flex-col gap-4 px-4 py-4 sm:px-6 sm:py-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center">
           <div className="flex min-w-0 flex-wrap items-center gap-3">
             <ConnectionStatusBadge
               hasSavedConnection={Boolean(connection)}
@@ -447,7 +448,7 @@ export function WebdeckApp({
             />
           </div>
 
-          <div aria-label="Deck actions" className="flex flex-wrap items-center justify-end gap-2" role="group">
+          <div className="flex justify-center lg:px-4">
             <Button
               aria-pressed={isEditMode}
               variant={isEditMode ? "default" : "outline"}
@@ -458,17 +459,22 @@ export function WebdeckApp({
             >
               {isEditMode ? "Exit edit" : "Edit deck"}
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsImportDialogOpen(true);
-              }}
-            >
-              Import
-            </Button>
-            <Button variant="outline" onClick={handleExport}>
-              Export
-            </Button>
+          </div>
+
+          <div aria-label="Deck actions" className="flex flex-wrap items-center justify-end gap-2" role="group">
+            <ButtonGroup aria-label="Import and export deck actions">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsImportDialogOpen(true);
+                }}
+              >
+                Import
+              </Button>
+              <Button variant="outline" onClick={handleExport}>
+                Export
+              </Button>
+            </ButtonGroup>
             <Button onClick={() => setIsConnectionDialogOpen(true)}>
               {connection ? "Manage OBS" : "Connect to OBS"}
             </Button>
