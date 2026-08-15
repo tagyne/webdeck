@@ -109,6 +109,12 @@
       "skillPath": "skills/planning-and-task-breakdown/SKILL.md",
       "computedHash": "77bfed82bec2d4583de001648182bd64f24f86d8d0819a477f08073a3b671b26"
     },
+    "react-call": {
+      "source": "desko27/react-call",
+      "sourceType": "github",
+      "skillPath": "skills/react-call/SKILL.md",
+      "computedHash": "81852b665736193af9d2fd420dbf1c5e9beffdf36f48c678b9985b3f3bd06ab5"
+    },
     "react-router": {
       "source": "remix-run/react-router",
       "ref": "main",

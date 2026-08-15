@@ -14,12 +14,14 @@ import { Separator } from "../components/ui/separator";
 import { toast } from "../components/ui/toast";
 import { getBrowserTestHarnessProps } from "../testing/browser-test-harness";
 import { ButtonEditor } from "../features/deck/button-editor";
+import { ConfirmActionCall } from "../features/confirm/confirm-action-call";
 import {
   createWebdeckExportFilename,
   parseWebdeckImportText,
   serializeWebdeckExport,
 } from "../features/deck/import-export";
 import { ImportExportPanel } from "../features/deck/import-export-panel";
+import { ImportPreviewCall } from "../features/deck/import-preview-call";
 import {
   createStarterDeckConfig,
   isDangerousDeckAction,
@@ -109,7 +111,6 @@ export function WebdeckApp({
   const hasBootstrapped = useRef(false);
   const hasAutoOpenedConnectionDialogRef = useRef(false);
   const autoConnectKeyRef = useRef<string>();
-  const dangerousConfirmButtonRef = useRef<HTMLButtonElement>(null);
   const lastBlockedActionToastAtRef = useRef(0);
   const [submitError, setSubmitError] = useState<string>();
   const [isSubmittingConnection, setIsSubmittingConnection] = useState(false);
@@ -118,9 +119,7 @@ export function WebdeckApp({
   const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
-  const [pendingDangerousSlot, setPendingDangerousSlot] = useState<number | null>(null);
   const [importError, setImportError] = useState<string>();
-  const [importPreview, setImportPreview] = useState<ReturnType<typeof parseWebdeckImportText>>();
 
   const connection = useStore(connectionStore, (state) => state.connection);
   const connectionStatus = useStore(obsStore, (state) => state.connectionStatus);
@@ -202,12 +201,6 @@ export function WebdeckApp({
       // The client and store already surface the connection error state.
     });
   }, [connection, connectionStatus, obsClient]);
-
-  useEffect(() => {
-    if (pendingDangerousSlot !== null) {
-      dangerousConfirmButtonRef.current?.focus();
-    }
-  }, [pendingDangerousSlot]);
 
   useEffect(() => {
     const previousStatus = previousConnectionStatusRef.current;
@@ -294,13 +287,11 @@ export function WebdeckApp({
     const button = deck?.buttons.find((item) => item.slot === slot);
 
     if (isEditMode) {
-      setPendingDangerousSlot(null);
       setEditingSlot(slot);
       return;
     }
 
     if (!button) {
-      setPendingDangerousSlot(null);
       setEditingSlot(slot);
       return;
     }
@@ -320,33 +311,20 @@ export function WebdeckApp({
     }
 
     if (isDangerousDeckAction(button.action)) {
-      setPendingDangerousSlot(slot);
-      return;
+      const accepted = await ConfirmActionCall.call({
+        title: "Confirm Stop Stream",
+        description: "Stop stream needs an extra confirmation to avoid accidental taps during a show.",
+        confirmLabel: "Confirm Stop Stream",
+        cancelLabel: "Cancel",
+        confirmVariant: "destructive",
+      });
+
+      if (!accepted) {
+        return;
+      }
     }
 
-    setPendingDangerousSlot(null);
     setActiveSlot(slot);
-
-    try {
-      await runDeckAction(obsClient, button.action);
-    } finally {
-      setActiveSlot(null);
-    }
-  };
-
-  const handleConfirmDangerousAction = async () => {
-    if (pendingDangerousSlot === null) {
-      return;
-    }
-
-    const button = deck?.buttons.find((item) => item.slot === pendingDangerousSlot);
-    if (!button) {
-      setPendingDangerousSlot(null);
-      return;
-    }
-
-    setActiveSlot(pendingDangerousSlot);
-    setPendingDangerousSlot(null);
 
     try {
       await runDeckAction(obsClient, button.action);
@@ -367,6 +345,24 @@ export function WebdeckApp({
 
   const handleQuickDeleteButton = async (slot: number) => {
     if (!deck) {
+      return;
+    }
+
+    const button = deck.buttons.find((item) => item.slot === slot);
+    if (!button) {
+      return;
+    }
+
+    const buttonName = button.label.trim() || `slot ${slot + 1}`;
+    const accepted = await ConfirmActionCall.call({
+      title: "Delete Deck Button",
+      description: `Delete ${buttonName} from the deck? This only removes the local shortcut.`,
+      confirmLabel: "Delete Button",
+      cancelLabel: "Keep Button",
+      confirmVariant: "destructive",
+    });
+
+    if (!accepted) {
       return;
     }
 
@@ -402,32 +398,35 @@ export function WebdeckApp({
 
   const handleImportFile = async (file: File) => {
     setImportError(undefined);
-    setImportPreview(undefined);
 
     try {
       const text = await file.text();
       const parsed = parseWebdeckImportText(text);
-      setImportPreview(parsed);
+      setIsImportDialogOpen(false);
+
+      const accepted = await ImportPreviewCall.call({
+        deckName: parsed.deck.name,
+        gridLabel: `${parsed.deck.grid.columns} x ${parsed.deck.grid.rows}`,
+        buttonCountLabel: `${parsed.deck.buttons.length} configured button${parsed.deck.buttons.length === 1 ? "" : "s"}`,
+        hasConnection: Boolean(parsed.connection),
+      });
+
+      if (!accepted) {
+        setIsImportDialogOpen(true);
+        return;
+      }
+
+      await deckStore.getState().save(parsed.deck);
+      if (parsed.connection) {
+        await connectionStore.getState().save(parsed.connection);
+      }
+
+      setImportError(undefined);
+      setIsEditMode(false);
+      setEditingSlot(null);
     } catch (error) {
       setImportError(error instanceof Error ? error.message : "Unable to import this file.");
     }
-  };
-
-  const handleConfirmImport = async () => {
-    if (!importPreview) {
-      return;
-    }
-
-    await deckStore.getState().save(importPreview.deck);
-    if (importPreview.connection) {
-      await connectionStore.getState().save(importPreview.connection);
-    }
-    setImportPreview(undefined);
-    setImportError(undefined);
-    setIsEditMode(false);
-    setEditingSlot(null);
-    setPendingDangerousSlot(null);
-    setIsImportDialogOpen(false);
   };
 
   return (
@@ -451,7 +450,6 @@ export function WebdeckApp({
               onClick={() => {
                 setIsEditMode((value) => !value);
                 setEditingSlot(null);
-                setPendingDangerousSlot(null);
               }}
             >
               {isEditMode ? "Exit edit" : "Edit deck"}
@@ -460,7 +458,6 @@ export function WebdeckApp({
               variant="outline"
               onClick={() => {
                 setImportError(undefined);
-                setImportPreview(undefined);
                 setIsImportDialogOpen(true);
               }}
             >
@@ -474,29 +471,6 @@ export function WebdeckApp({
             </Button>
           </div>
         </div>
-
-        {pendingDangerousSlot !== null ? (
-          <div className="flex flex-col gap-3">
-            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4">
-              <p className="text-sm font-medium text-foreground">Confirm before running this live action</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Stop stream needs an extra confirmation to avoid accidental taps during a show.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-3">
-                <Button
-                  ref={dangerousConfirmButtonRef}
-                  variant="destructive"
-                  onClick={handleConfirmDangerousAction}
-                >
-                  Confirm stop stream
-                </Button>
-                <Button variant="outline" onClick={() => setPendingDangerousSlot(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : null}
 
         <Separator />
       </header>
@@ -561,22 +535,8 @@ export function WebdeckApp({
           <ImportExportPanel
             error={importError}
             showExport={false}
-            onCancelPreview={() => {
-              setImportPreview(undefined);
-              setImportError(undefined);
-              setIsImportDialogOpen(false);
-            }}
-            onConfirmPreview={handleConfirmImport}
             onExport={handleExport}
             onImportFile={handleImportFile}
-            preview={importPreview
-              ? {
-                  deckName: importPreview.deck.name,
-                  gridLabel: `${importPreview.deck.grid.columns} x ${importPreview.deck.grid.rows}`,
-                  buttonCountLabel: `${importPreview.deck.buttons.length} configured button${importPreview.deck.buttons.length === 1 ? "" : "s"}`,
-                  hasConnection: Boolean(importPreview.connection),
-                }
-              : undefined}
           />
         </DialogContent>
       </Dialog>
@@ -597,6 +557,8 @@ export function WebdeckApp({
         }}
         onSubmit={handleConnect}
       />
+      <ConfirmActionCall />
+      <ImportPreviewCall />
     </main>
   );
 }

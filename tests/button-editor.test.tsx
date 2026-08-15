@@ -172,7 +172,8 @@ describe("button editor", () => {
     await screen.findByRole("heading", { name: /main obs deck/i });
     fireEvent.click(screen.getByRole("button", { name: /edit deck/i }));
     fireEvent.click(screen.getByRole("button", { name: /delete button in slot 1/i }));
-    fireEvent.click(screen.getByRole("button", { name: /confirm delete button in slot 1/i }));
+    const dialog = await screen.findByRole("dialog", { name: /delete deck button/i });
+    fireEvent.click(within(dialog).getByRole("button", { name: /delete button/i }));
 
     await waitFor(() => {
       expect(savedDeck.buttons.find((button) => button.slot === 0)).toBeUndefined();

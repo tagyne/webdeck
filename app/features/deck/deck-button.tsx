@@ -1,12 +1,10 @@
-import { useState } from "react";
-
 import { Button } from "../../components/ui/button";
 import { cn } from "../../lib/utils";
 import { LucideIcon } from "./lucide-icon";
 import type { DeckButton as DeckButtonModel } from "./types";
 import type { ObsState } from "../obs/types";
 import { getDeckButtonStateMeta } from "./deck-button-state";
-import { CheckIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react";
+import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 const iconSizeClassMap = {
   sm: "size-8",
@@ -31,7 +29,6 @@ export function DeckButton({
   obsState?: ObsState;
   onPress: () => void;
 }) {
-  const [isDeleteArmed, setIsDeleteArmed] = useState(false);
   const buttonLabel = button?.label.trim();
   const accessibleName = button
     ? `Slot ${slot + 1}: ${buttonLabel || button.icon.name}`
@@ -52,42 +49,16 @@ export function DeckButton({
           </span>
           {button ? (
             <div className="pointer-events-auto flex items-center gap-1">
-              {isDeleteArmed ? (
-                <>
-                  <Button
-                    aria-label={`Confirm delete button in slot ${slot + 1}`}
-                    size="icon-sm"
-                    variant="destructive"
-                    onClick={() => {
-                      setIsDeleteArmed(false);
-                      onDelete?.();
-                    }}
-                  >
-                    <CheckIcon aria-hidden="true" />
-                  </Button>
-                  <Button
-                    aria-label={`Cancel delete button in slot ${slot + 1}`}
-                    size="icon-sm"
-                    variant="outline"
-                    onClick={() => {
-                      setIsDeleteArmed(false);
-                    }}
-                  >
-                    <XIcon aria-hidden="true" />
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  aria-label={`Delete button in slot ${slot + 1}`}
-                  size="icon-sm"
-                  variant="outline"
-                  onClick={() => {
-                    setIsDeleteArmed(true);
-                  }}
-                >
-                  <Trash2Icon aria-hidden="true" />
-                </Button>
-              )}
+              <Button
+                aria-label={`Delete button in slot ${slot + 1}`}
+                size="icon-sm"
+                variant="outline"
+                onClick={() => {
+                  onDelete?.();
+                }}
+              >
+                <Trash2Icon aria-hidden="true" />
+              </Button>
             </div>
           ) : null}
         </div>

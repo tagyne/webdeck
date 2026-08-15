@@ -1,13 +1,7 @@
-import { useEffect, useRef } from "react";
-
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from "../../components/ui/card";
 import {
   Field,
@@ -17,38 +11,17 @@ import {
 } from "../../components/ui/field";
 import { Input } from "../../components/ui/input";
 
-type ImportPreview = {
-  deckName: string;
-  gridLabel: string;
-  buttonCountLabel: string;
-  hasConnection: boolean;
-};
-
 export function ImportExportPanel({
   error,
-  preview,
   showExport = true,
   onExport,
   onImportFile,
-  onCancelPreview,
-  onConfirmPreview,
 }: {
   error?: string;
-  preview?: ImportPreview;
   showExport?: boolean;
   onExport: () => void;
   onImportFile: (file: File) => Promise<void>;
-  onCancelPreview: () => void;
-  onConfirmPreview: () => Promise<void>;
 }) {
-  const previewConfirmButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (preview) {
-      previewConfirmButtonRef.current?.focus();
-    }
-  }, [preview]);
-
   return (
     <Card>
       <CardHeader>
@@ -96,40 +69,6 @@ export function ImportExportPanel({
             <AlertTitle>Import failed</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        ) : null}
-
-        {preview ? (
-          <Card
-            aria-label="Import preview"
-            className="border bg-muted/30 shadow-none"
-            role="dialog"
-            size="sm"
-          >
-            <CardHeader>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Preview
-              </p>
-              <CardTitle className="text-2xl font-semibold">{preview.deckName}</CardTitle>
-              <CardDescription>{preview.gridLabel}</CardDescription>
-              <CardDescription>{preview.buttonCountLabel}</CardDescription>
-              <CardDescription>
-                {preview.hasConnection ? "Connection settings included" : "No connection settings included"}
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="flex gap-3">
-              <Button
-                ref={previewConfirmButtonRef}
-                className="flex-1"
-                onClick={() => void onConfirmPreview()}
-              >
-                Replace current deck
-              </Button>
-              <Button className="flex-1" variant="secondary" onClick={onCancelPreview}>
-                Cancel
-              </Button>
-            </CardContent>
-          </Card>
         ) : null}
       </CardContent>
     </Card>
