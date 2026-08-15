@@ -110,4 +110,72 @@ describe("button editor", () => {
     expect(screen.getByRole("button", { name: /exit edit deck/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /slot 6: brb/i })).toBeInTheDocument();
   });
+
+  it("marks deck buttons as editable while edit mode is active", async () => {
+    render(
+      <WebdeckApp
+        connectionStore={createConnectionStore({
+          repository: {
+            get: async () => ({
+              host: "192.168.1.20",
+              port: 4455,
+            }),
+            save: async () => undefined,
+          },
+        })}
+        deckStore={createDeckStore({
+          repository: {
+            get: async () => createStarterDeckConfig(),
+            save: async () => undefined,
+          },
+        })}
+        obsStore={createObsStore()}
+        obsClient={new FakeObsClient()}
+      />,
+    );
+
+    await screen.findByRole("heading", { name: /main obs deck/i });
+    fireEvent.click(screen.getByRole("button", { name: /edit deck/i }));
+
+    expect(screen.getAllByText("Edit").length).toBeGreaterThan(0);
+    expect(screen.getByText(/tap to add a button/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /delete button in slot 1/i })).toBeInTheDocument();
+  });
+
+  it("supports deleting a button from the tile shortcut in edit mode", async () => {
+    let savedDeck = createStarterDeckConfig();
+
+    render(
+      <WebdeckApp
+        connectionStore={createConnectionStore({
+          repository: {
+            get: async () => ({
+              host: "192.168.1.20",
+              port: 4455,
+            }),
+            save: async () => undefined,
+          },
+        })}
+        deckStore={createDeckStore({
+          repository: {
+            get: async () => createStarterDeckConfig(),
+            save: async (deck) => {
+              savedDeck = deck;
+            },
+          },
+        })}
+        obsStore={createObsStore()}
+        obsClient={new FakeObsClient()}
+      />,
+    );
+
+    await screen.findByRole("heading", { name: /main obs deck/i });
+    fireEvent.click(screen.getByRole("button", { name: /edit deck/i }));
+    fireEvent.click(screen.getByRole("button", { name: /delete button in slot 1/i }));
+    fireEvent.click(screen.getByRole("button", { name: /confirm delete button in slot 1/i }));
+
+    await waitFor(() => {
+      expect(savedDeck.buttons.find((button) => button.slot === 0)).toBeUndefined();
+    });
+  });
 });

@@ -17,12 +17,16 @@ function getNextAvailableSlot(slots: number[]) {
 export function DeckGrid({
   deck,
   activeSlot,
+  isEditMode,
+  onDeleteSlot,
   obsState,
   onPressSlot,
   className,
 }: {
   deck: DeckConfig;
   activeSlot?: number | null;
+  isEditMode?: boolean;
+  onDeleteSlot?: (slot: number) => void;
   obsState: ObsState;
   onPressSlot: (slot: number) => void;
   className?: string;
@@ -40,18 +44,21 @@ export function DeckGrid({
     >
       {sortedButtons.map((button) => (
         <DeckButton
-          key={button.slot}
+          key={`${button.slot}-${isEditMode ? "edit" : "view"}`}
           slot={button.slot}
           button={button}
           isBusy={activeSlot === button.slot}
+          isEditMode={isEditMode}
+          onDelete={button ? () => onDeleteSlot?.(button.slot) : undefined}
           obsState={obsState}
           onPress={() => onPressSlot(button.slot)}
         />
       ))}
       <DeckButton
-        key={`placeholder-${nextSlot}`}
+        key={`placeholder-${nextSlot}-${isEditMode ? "edit" : "view"}`}
         slot={nextSlot}
         isBusy={activeSlot === nextSlot}
+        isEditMode={isEditMode}
         obsState={obsState}
         onPress={() => onPressSlot(nextSlot)}
       />

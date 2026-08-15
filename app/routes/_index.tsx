@@ -365,6 +365,22 @@ export function WebdeckApp({
     setEditingSlot(null);
   };
 
+  const handleQuickDeleteButton = async (slot: number) => {
+    if (!deck) {
+      return;
+    }
+
+    await deckStore.getState().save({
+      ...deck,
+      buttons: deck.buttons.filter((item) => item.slot !== slot),
+      updatedAt: new Date().toISOString(),
+    });
+
+    if (editingSlot === slot) {
+      setEditingSlot(null);
+    }
+  };
+
   const handleExport = () => {
     if (!deck) {
       return;
@@ -492,6 +508,10 @@ export function WebdeckApp({
               className="flex-1 auto-rows-fr"
               deck={deck}
               activeSlot={activeSlot}
+              isEditMode={isEditMode}
+              onDeleteSlot={(slot) => {
+                void handleQuickDeleteButton(slot);
+              }}
               obsState={obsStateSnapshot}
               onPressSlot={handlePressSlot}
             />
