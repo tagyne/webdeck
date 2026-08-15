@@ -19,6 +19,7 @@ import {
   FieldLabel,
 } from "../components/ui/field";
 import { Input } from "../components/ui/input";
+import { Spinner } from "../components/ui/spinner";
 import { Separator } from "../components/ui/separator";
 import { toast } from "../components/ui/toast";
 import { getBrowserTestHarnessProps } from "../testing/browser-test-harness";
@@ -125,6 +126,7 @@ export function WebdeckApp({
   const [isEditMode, setIsEditMode] = useState(false);
   const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string>();
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
 
@@ -398,6 +400,7 @@ export function WebdeckApp({
 
   const handleImportFile = async (file: File) => {
     setImportError(undefined);
+    setIsImporting(true);
 
     try {
       const text = await file.text();
@@ -434,6 +437,8 @@ export function WebdeckApp({
         error instanceof Error ? error.message : "Choose a valid `.webdeck.json` file and try again.",
       );
       setIsImportDialogOpen(true);
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -536,13 +541,17 @@ export function WebdeckApp({
       </Dialog>
 
       <Dialog open={isImportDialogOpen} onOpenChange={(open) => {
+        if (isImporting) {
+          return;
+        }
+
         setIsImportDialogOpen(open);
         if (!open) {
           setImportError(undefined);
         }
       }}
       >
-        <DialogContent>
+        <DialogContent showCloseButton={!isImporting}>
           <DialogHeader>
             <DialogTitle>Import deck</DialogTitle>
             <DialogDescription>
@@ -559,6 +568,7 @@ export function WebdeckApp({
                   accept=".json,.webdeck.json,application/json"
                   aria-invalid={importError ? true : undefined}
                   autoComplete="off"
+                  disabled={isImporting}
                   type="file"
                   onChange={(event) => {
                     const file = event.currentTarget.files?.[0];
@@ -572,6 +582,12 @@ export function WebdeckApp({
                 />
               </FieldContent>
             </Field>
+            {isImporting ? (
+              <div aria-live="polite" className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+                <Spinner aria-hidden="true" />
+                <span>Importing…</span>
+              </div>
+            ) : null}
             {importError ? (
               <Alert variant="destructive">
                 <AlertTitle>Import failed</AlertTitle>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
@@ -24,6 +24,7 @@ import {
   FieldSet,
 } from "../../components/ui/field";
 import { Input } from "../../components/ui/input";
+import { LoadingButton } from "../../components/ui/loading-button";
 import {
   NativeSelect,
   NativeSelectOption,
@@ -153,6 +154,7 @@ export function ButtonEditor({
   onSave: (nextDeck: DeckConfig) => Promise<void>;
 }) {
   const labelInputRef = useRef<HTMLInputElement>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const {
     control,
     register,
@@ -252,7 +254,13 @@ export function ButtonEditor({
   };
 
   const handleDelete = async () => {
-    await onDelete(removeButton({ deck, slot }));
+    setIsDeleting(true);
+
+    try {
+      await onDelete(removeButton({ deck, slot }));
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -419,9 +427,15 @@ export function ButtonEditor({
       <DialogFooter className="items-stretch sm:items-center sm:justify-between">
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           {button ? (
-            <Button type="button" variant="destructive" onClick={handleDelete}>
+            <LoadingButton
+              type="button"
+              variant="destructive"
+              loading={isDeleting}
+              loadingLabel="Removing…"
+              onClick={handleDelete}
+            >
               Remove button
-            </Button>
+            </LoadingButton>
           ) : null}
         </div>
 
@@ -429,9 +443,14 @@ export function ButtonEditor({
           <Button className="sm:min-w-32" type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button className="sm:min-w-32" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : button ? "Save changes" : "Add button"}
-          </Button>
+          <LoadingButton
+            className="sm:min-w-32"
+            type="submit"
+            loading={isSubmitting}
+            loadingLabel="Saving…"
+          >
+            {button ? "Save changes" : "Add button"}
+          </LoadingButton>
         </div>
       </DialogFooter>
     </form>

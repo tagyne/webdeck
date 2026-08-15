@@ -19,6 +19,7 @@ import {
   FieldSet,
 } from "../../components/ui/field";
 import { Input } from "../../components/ui/input";
+import { LoadingButton } from "../../components/ui/loading-button";
 import type { ReactNode } from "react";
 import type { ObsConnectionSettings, ObsConnectionStatus } from "./types";
 
@@ -175,13 +176,15 @@ export function ConnectionForm({
           <Button className="sm:min-w-32" type="button" variant="outline" onClick={onCancel}>
             Close
           </Button>
-          <Button className="sm:min-w-32" type="submit" disabled={isLoading || isSubmitting}>
-            {isSubmitting
-              ? "Connecting…"
-              : connectionStatus === "connected" && hasConnection
-                ? "Update OBS"
-                : "Connect OBS"}
-          </Button>
+          <LoadingButton
+            className="sm:min-w-32"
+            type="submit"
+            loading={isSubmitting}
+            loadingLabel="Connecting…"
+            disabled={isLoading}
+          >
+            {connectionStatus === "connected" && hasConnection ? "Update OBS" : "Connect OBS"}
+          </LoadingButton>
         </div>
       </DialogFooter>
     </form>
