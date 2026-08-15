@@ -445,83 +445,86 @@ export function WebdeckApp({
   };
 
   return (
-    <main className="flex min-h-screen flex-col bg-background text-foreground">
-      <header className="flex flex-col gap-4 px-4 py-4 sm:px-6 sm:py-5">
-        <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-          <div className="flex min-w-0 flex-wrap items-center gap-3">
-            <ConnectionStatusBadge
-              hasSavedConnection={Boolean(connection)}
-              status={connectionStatus}
-            />
-          </div>
+    <>
+      <header className="bg-background text-foreground">
+        <div className="flex flex-col gap-4 px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-5">
+          <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <ConnectionStatusBadge
+                hasSavedConnection={Boolean(connection)}
+                status={connectionStatus}
+              />
+            </div>
 
-          <div className="flex justify-center lg:px-4">
-            <Button
-              aria-pressed={isEditMode}
-              variant={isEditMode ? "default" : "outline"}
-              onClick={() => {
-                setIsEditMode((value) => !value);
-                setEditingSlot(null);
-              }}
-            >
-              {isEditMode ? "Exit edit" : "Edit deck"}
-            </Button>
-          </div>
-
-          <div aria-label="Deck actions" className="flex flex-wrap items-center justify-end gap-2" role="group">
-            <ButtonGroup aria-label="Import and export deck actions">
+            <div className="flex justify-center lg:px-4">
               <Button
-                variant="outline"
+                aria-pressed={isEditMode}
+                variant={isEditMode ? "default" : "outline"}
                 onClick={() => {
-                  setIsImportDialogOpen(true);
+                  setIsEditMode((value) => !value);
+                  setEditingSlot(null);
                 }}
               >
-                Import
+                {isEditMode ? "Exit edit" : "Edit deck"}
               </Button>
-              <Button variant="outline" onClick={handleExport}>
-                Export
+            </div>
+
+            <div aria-label="Deck actions" className="flex flex-wrap items-center justify-end gap-2" role="group">
+              <ButtonGroup aria-label="Import and export deck actions">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsImportDialogOpen(true);
+                  }}
+                >
+                  Import
+                </Button>
+                <Button variant="outline" onClick={handleExport}>
+                  Export
+                </Button>
+              </ButtonGroup>
+              <Button onClick={() => setIsConnectionDialogOpen(true)}>
+                {connection ? "Manage OBS" : "Connect to OBS"}
               </Button>
-            </ButtonGroup>
-            <Button onClick={() => setIsConnectionDialogOpen(true)}>
-              {connection ? "Manage OBS" : "Connect to OBS"}
-            </Button>
+            </div>
           </div>
         </div>
-
-        <Separator />
       </header>
 
-      <section className="flex min-h-0 flex-1 p-4 sm:p-6">
-        <div className="flex min-h-0 flex-1 flex-col">
-          {deck ? (
-            <DeckGrid
-              className="flex-1"
-              deck={deck}
-              activeSlot={activeSlot}
-              isEditMode={isEditMode}
-              onDeleteSlot={(slot) => {
-                void handleQuickDeleteButton(slot);
-              }}
-              obsState={obsStateSnapshot}
-              onPressSlot={handlePressSlot}
-            />
-          ) : (
-            <div className="grid flex-1 grid-cols-5 content-start gap-3 sm:gap-4">
-              {Array.from({ length: getDeckSlotCount(DEFAULT_DECK_GRID) }, (_, slot) => (
-                <Button
-                  key={slot}
-                  aria-label={`Slot ${slot + 1}: Loading`}
-                  variant="ghost"
-                  className="aspect-square h-auto w-full rounded-xl border border-dashed text-muted-foreground"
-                >
-                  Slot {slot + 1}
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <main className="grid min-h-screen grid-rows-[auto_minmax(0,1fr)] gap-4 bg-background px-4 pb-4 text-foreground sm:px-6 sm:pb-6">
+        <Separator />
 
+        <section className="min-h-0">
+          <div className="flex h-full min-h-0 flex-col">
+            {deck ? (
+              <DeckGrid
+                className="flex-1"
+                deck={deck}
+                activeSlot={activeSlot}
+                isEditMode={isEditMode}
+                onDeleteSlot={(slot) => {
+                  void handleQuickDeleteButton(slot);
+                }}
+                obsState={obsStateSnapshot}
+                onPressSlot={handlePressSlot}
+              />
+            ) : (
+              <div className="grid flex-1 grid-cols-5 content-start gap-3 sm:gap-4">
+                {Array.from({ length: getDeckSlotCount(DEFAULT_DECK_GRID) }, (_, slot) => (
+                  <Button
+                    key={slot}
+                    aria-label={`Slot ${slot + 1}: Loading`}
+                    variant="ghost"
+                    className="aspect-square h-auto w-full rounded-xl border border-dashed text-muted-foreground"
+                  >
+                    Slot {slot + 1}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
       <Dialog open={editingSlot !== null} onOpenChange={(open) => {
         if (!open) {
           setEditingSlot(null);
@@ -617,7 +620,7 @@ export function WebdeckApp({
         onSubmit={handleConnect}
       />
       <ConfirmActionCall />
-    </main>
+    </>
   );
 }
 
