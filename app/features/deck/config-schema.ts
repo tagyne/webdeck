@@ -20,7 +20,7 @@ import {
 
 export const WEBDECK_APP_ID = "webdeck";
 export const WEBDECK_SCHEMA_VERSION = 1;
-export const MAX_GRID_COLUMNS = 3;
+export const MAX_GRID_COLUMNS = 5;
 export const MAX_GRID_ROWS = 3;
 
 export type WebdeckExportAction =

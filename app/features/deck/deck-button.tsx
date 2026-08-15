@@ -39,7 +39,7 @@ export function DeckButton({
   const buttonColor = button ? getDeckButtonColor(button.color) : null;
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative aspect-square w-full min-w-0">
       {isEditMode ? (
         <div className="pointer-events-none absolute top-3 left-3 right-3 z-10 flex items-start justify-between gap-2">
           <span

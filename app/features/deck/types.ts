@@ -44,7 +44,7 @@ export type DeckConfig = {
 };
 
 export const DEFAULT_DECK_GRID: DeckGrid = {
-  columns: 3,
+  columns: 5,
   rows: 3,
 };
 

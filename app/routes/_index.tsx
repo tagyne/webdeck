@@ -32,6 +32,8 @@ import {
 } from "../features/deck/import-export";
 import {
   createStarterDeckConfig,
+  DEFAULT_DECK_GRID,
+  getDeckSlotCount,
   isDangerousDeckAction,
 } from "../features/deck/types";
 import { DeckGrid } from "../features/deck/deck-grid";
@@ -493,7 +495,7 @@ export function WebdeckApp({
         <div className="flex min-h-0 flex-1 flex-col">
           {deck ? (
             <DeckGrid
-              className="flex-1 auto-rows-fr"
+              className="flex-1"
               deck={deck}
               activeSlot={activeSlot}
               isEditMode={isEditMode}
@@ -504,13 +506,13 @@ export function WebdeckApp({
               onPressSlot={handlePressSlot}
             />
           ) : (
-            <div className="grid flex-1 grid-cols-3 grid-rows-3 gap-3 sm:gap-4">
-              {Array.from({ length: 9 }, (_, slot) => (
+            <div className="grid flex-1 grid-cols-5 content-start gap-3 sm:gap-4">
+              {Array.from({ length: getDeckSlotCount(DEFAULT_DECK_GRID) }, (_, slot) => (
                 <Button
                   key={slot}
                   aria-label={`Slot ${slot + 1}: Loading`}
                   variant="ghost"
-                  className="h-full rounded-xl border border-dashed text-muted-foreground"
+                  className="aspect-square h-auto w-full rounded-xl border border-dashed text-muted-foreground"
                 >
                   Slot {slot + 1}
                 </Button>
