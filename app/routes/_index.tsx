@@ -447,16 +447,16 @@ export function WebdeckApp({
   return (
     <>
       <header className="bg-background text-foreground">
-        <div className="flex flex-col gap-4 px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-5">
-          <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-            <div className="flex min-w-0 flex-wrap items-center gap-3">
+        <div className="flex flex-col gap-4 px-4 py-4">
+          <div className="flex flex-row items-center justify-between gap-3">
+            <div className="flex w-fit flex-wrap items-center gap-3">
               <ConnectionStatusBadge
                 hasSavedConnection={Boolean(connection)}
                 status={connectionStatus}
               />
             </div>
 
-            <div className="flex justify-center lg:px-4">
+            <div className="flex w-fit justify-center px-4">
               <Button
                 aria-pressed={isEditMode}
                 variant={isEditMode ? "default" : "outline"}
@@ -469,7 +469,7 @@ export function WebdeckApp({
               </Button>
             </div>
 
-            <div aria-label="Deck actions" className="flex flex-wrap items-center justify-end gap-2" role="group">
+            <div aria-label="Deck actions" className="flex w-fit flex-wrap items-center justify-end gap-2" role="group">
               <ButtonGroup aria-label="Import and export deck actions">
                 <Button
                   variant="outline"
