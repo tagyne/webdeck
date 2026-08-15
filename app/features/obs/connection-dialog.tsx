@@ -1,13 +1,8 @@
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from "../../components/ui/dialog";
 import type { ObsConnectionSettings, ObsConnectionStatus } from "./types";
 import { ConnectionForm } from "./connection-form";
@@ -65,49 +60,35 @@ export function ConnectionDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-6 sm:p-7">
-        <DialogHeader>
-          <div className="flex items-start justify-between gap-3 pr-10">
-            <DialogTitle>OBS connection</DialogTitle>
+      <DialogContent className="max-w-4xl sm:max-w-3xl">
+        <ConnectionForm
+          connectionStatus={connectionStatus}
+          defaultValues={connection}
+          error={error}
+          formId="obs-connection-form"
+          hasConnection={hasConnection}
+          isLoading={isLoading}
+          isSubmitting={isSubmitting}
+          statusBadge={(
             <Badge variant={getConnectionBadgeVariant(connectionStatus)}>
               {getConnectionLabel(connectionStatus, hasConnection)}
             </Badge>
-          </div>
-          <DialogDescription>
-            Configure the local OBS WebSocket endpoint in a dedicated modal so the deck can stay focused on live controls.
-          </DialogDescription>
-        </DialogHeader>
-
-        {connectionStatus !== "connected" && hasConnection ? (
-          <Alert>
-            <AlertTitle>OBS connection unavailable</AlertTitle>
-            <AlertDescription>
-              <p>
-                {lastError ?? "Reconnect OBS to restore action execution and trusted live feedback."}
-              </p>
-            </AlertDescription>
-          </Alert>
-        ) : null}
-
-        {isLoading ? (
-          <div className="px-1 py-2 text-sm text-muted-foreground">Loading saved connection settings...</div>
-        ) : (
-          <ConnectionForm
-            defaultValues={connection}
-            error={error}
-            formId="obs-connection-form"
-            onSubmit={onSubmit}
-          />
-        )}
-
-        <DialogFooter>
-          <Button form="obs-connection-form" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Connecting…" : "Connect OBS"}
-          </Button>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-        </DialogFooter>
+          )}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={onSubmit}
+          unavailableAlert={
+            connectionStatus !== "connected" && hasConnection ? (
+              <Alert>
+                <AlertTitle>OBS connection unavailable</AlertTitle>
+                <AlertDescription>
+                  <p>
+                    {lastError ?? "Reconnect OBS to restore action execution and trusted live feedback."}
+                  </p>
+                </AlertDescription>
+              </Alert>
+            ) : null
+          }
+        />
       </DialogContent>
     </Dialog>
   );
