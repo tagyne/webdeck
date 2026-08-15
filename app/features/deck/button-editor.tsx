@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
-import { cn } from "../../lib/utils";
 import { Button } from "../../components/ui/button";
 import {
   Card,
@@ -30,9 +29,10 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "../../components/ui/native-select";
+import { Separator } from "../../components/ui/separator";
 import { ButtonColorDialog } from "./button-color-dialog";
 import { DeckButton as DeckButtonPreview } from "./deck-button";
-import { getDeckButtonColor, type DeckButtonColor } from "./button-colors";
+import { type DeckButtonColor } from "./button-colors";
 import { DeckIconCombobox } from "./deck-icon-combobox";
 import {
   DECK_ICON_SIZES,
@@ -274,8 +274,6 @@ export function ButtonEditor({
       setIsDeleting(false);
     }
   };
-  const selectedColor = getDeckButtonColor(color);
-
   return (
     <>
       <form
@@ -290,7 +288,7 @@ export function ButtonEditor({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid min-h-0 gap-6 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="grid min-h-0 gap-6 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_1px_16rem]">
           <div className="flex flex-col gap-6">
             <FieldSet>
               <FieldGroup>
@@ -333,7 +331,7 @@ export function ButtonEditor({
                 <Field>
                   <FieldLabel htmlFor="button-icon-size">Icon Size</FieldLabel>
                   <FieldContent>
-                    <NativeSelect id="button-icon-size" {...register("iconSize")}>
+                    <NativeSelect className="w-full" id="button-icon-size" {...register("iconSize")}>
                       {DECK_ICON_SIZES.map((size) => (
                         <NativeSelectOption key={size} value={size}>
                           {size.toUpperCase()}
@@ -346,19 +344,15 @@ export function ButtonEditor({
                 <Field>
                   <FieldLabel htmlFor="button-color-trigger">Background color</FieldLabel>
                   <FieldContent>
-                    <Button
+                    <ButtonColorDialog
                       id="button-color-trigger"
-                      type="button"
-                      variant="outline"
-                      className="justify-start gap-3"
-                      onClick={() => setIsColorDialogOpen(true)}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={cn("size-4 rounded-full border border-border", selectedColor.bgClass)}
-                      />
-                      <span>{selectedColor.label}</span>
-                    </Button>
+                      open={isColorDialogOpen}
+                      value={color}
+                      onOpenChange={setIsColorDialogOpen}
+                      onSelect={(nextColor) => {
+                        setValue("color", nextColor, { shouldDirty: true });
+                      }}
+                    />
                   </FieldContent>
                 </Field>
               </FieldGroup>
@@ -369,7 +363,7 @@ export function ButtonEditor({
                 <Field>
                   <FieldLabel htmlFor="button-action-type">Action type</FieldLabel>
                   <FieldContent>
-                    <NativeSelect id="button-action-type" {...register("actionType")}>
+                    <NativeSelect className="w-full" id="button-action-type" {...register("actionType")}>
                       {OBS_ACTION_TYPES.map((actionTypeOption) => (
                         <NativeSelectOption key={actionTypeOption} value={actionTypeOption}>
                           {ACTION_LABELS[actionTypeOption]}
@@ -438,6 +432,12 @@ export function ButtonEditor({
             </FieldSet>
           </div>
 
+          <Separator
+            aria-hidden="true"
+            className="hidden lg:block"
+            orientation="vertical"
+          />
+
           <div className="flex flex-col gap-4">
             <Card className="bg-muted/30">
               <CardHeader>
@@ -487,15 +487,6 @@ export function ButtonEditor({
           </div>
         </DialogFooter>
       </form>
-
-      <ButtonColorDialog
-        open={isColorDialogOpen}
-        value={color}
-        onOpenChange={setIsColorDialogOpen}
-        onSelect={(nextColor) => {
-          setValue("color", nextColor, { shouldDirty: true });
-        }}
-      />
     </>
   );
 }
