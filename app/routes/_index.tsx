@@ -10,6 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
+import {
+  Field,
+  FieldContent,
+  FieldGroup,
+  FieldLabel,
+} from "../components/ui/field";
+import { Input } from "../components/ui/input";
 import { Separator } from "../components/ui/separator";
 import { toast } from "../components/ui/toast";
 import { getBrowserTestHarnessProps } from "../testing/browser-test-harness";
@@ -20,7 +27,6 @@ import {
   parseWebdeckImportText,
   serializeWebdeckExport,
 } from "../features/deck/import-export";
-import { ImportExportPanel } from "../features/deck/import-export-panel";
 import { ImportPreviewCall } from "../features/deck/import-preview-call";
 import {
   createStarterDeckConfig,
@@ -119,7 +125,6 @@ export function WebdeckApp({
   const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
-  const [importError, setImportError] = useState<string>();
 
   const connection = useStore(connectionStore, (state) => state.connection);
   const connectionStatus = useStore(obsStore, (state) => state.connectionStatus);
@@ -390,8 +395,6 @@ export function WebdeckApp({
   };
 
   const handleImportFile = async (file: File) => {
-    setImportError(undefined);
-
     try {
       const text = await file.text();
       const parsed = parseWebdeckImportText(text);
@@ -414,11 +417,14 @@ export function WebdeckApp({
         await connectionStore.getState().save(parsed.connection);
       }
 
-      setImportError(undefined);
       setIsEditMode(false);
       setEditingSlot(null);
     } catch (error) {
-      setImportError(error instanceof Error ? error.message : "Unable to import this file.");
+      toast.add({
+        type: "error",
+        title: "Import failed",
+        description: error instanceof Error ? error.message : "Choose a valid `.webdeck.json` file and try again.",
+      });
     }
   };
 
@@ -447,7 +453,6 @@ export function WebdeckApp({
             <Button
               variant="outline"
               onClick={() => {
-                setImportError(undefined);
                 setIsImportDialogOpen(true);
               }}
             >
@@ -517,17 +522,35 @@ export function WebdeckApp({
       </Dialog>
 
       <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <DialogContent className="max-w-3xl p-0 sm:max-w-2xl">
-          <DialogHeader className="sr-only">
+        <DialogContent>
+          <DialogHeader>
             <DialogTitle>Import deck</DialogTitle>
-            <DialogDescription>Import a saved deck file and preview it before replacing current local data.</DialogDescription>
+            <DialogDescription>
+              Import a saved `.webdeck.json` file and preview it before replacing current local data.
+            </DialogDescription>
           </DialogHeader>
-          <ImportExportPanel
-            error={importError}
-            showExport={false}
-            onExport={handleExport}
-            onImportFile={handleImportFile}
-          />
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="deck-import-file">Import deck file</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="deck-import-file"
+                  name="deck-import-file"
+                  accept=".json,.webdeck.json,application/json"
+                  type="file"
+                  onChange={(event) => {
+                    const file = event.currentTarget.files?.[0];
+                    if (!file) {
+                      return;
+                    }
+
+                    void handleImportFile(file);
+                    event.currentTarget.value = "";
+                  }}
+                />
+              </FieldContent>
+            </Field>
+          </FieldGroup>
         </DialogContent>
       </Dialog>
 
