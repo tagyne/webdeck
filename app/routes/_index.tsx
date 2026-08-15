@@ -3,6 +3,7 @@ import { useStore } from "zustand";
 
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +28,6 @@ import {
   parseWebdeckImportText,
   serializeWebdeckExport,
 } from "../features/deck/import-export";
-import { ImportPreviewCall } from "../features/deck/import-preview-call";
 import {
   createStarterDeckConfig,
   isDangerousDeckAction,
@@ -124,6 +124,7 @@ export function WebdeckApp({
   const [isEditMode, setIsEditMode] = useState(false);
   const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [importError, setImportError] = useState<string>();
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
 
   const connection = useStore(connectionStore, (state) => state.connection);
@@ -395,16 +396,19 @@ export function WebdeckApp({
   };
 
   const handleImportFile = async (file: File) => {
+    setImportError(undefined);
+
     try {
       const text = await file.text();
       const parsed = parseWebdeckImportText(text);
       setIsImportDialogOpen(false);
 
-      const accepted = await ImportPreviewCall.call({
-        deckName: parsed.deck.name,
-        gridLabel: `${parsed.deck.grid.columns} x ${parsed.deck.grid.rows}`,
-        buttonCountLabel: `${parsed.deck.buttons.length} configured button${parsed.deck.buttons.length === 1 ? "" : "s"}`,
-        hasConnection: Boolean(parsed.connection),
+      const accepted = await ConfirmActionCall.call({
+        title: "Replace Current Deck",
+        description: "Importing this file will replace the current local deck and any saved OBS connection included in the file.",
+        confirmLabel: "Replace Deck",
+        cancelLabel: "Cancel",
+        confirmVariant: "destructive",
       });
 
       if (!accepted) {
@@ -417,14 +421,18 @@ export function WebdeckApp({
         await connectionStore.getState().save(parsed.connection);
       }
 
+      toast.add({
+        type: "success",
+        title: "Import complete",
+        description: "The deck was imported successfully.",
+      });
       setIsEditMode(false);
       setEditingSlot(null);
     } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Import failed",
-        description: error instanceof Error ? error.message : "Choose a valid `.webdeck.json` file and try again.",
-      });
+      setImportError(
+        error instanceof Error ? error.message : "Choose a valid `.webdeck.json` file and try again.",
+      );
+      setIsImportDialogOpen(true);
     }
   };
 
@@ -521,22 +529,30 @@ export function WebdeckApp({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+      <Dialog open={isImportDialogOpen} onOpenChange={(open) => {
+        setIsImportDialogOpen(open);
+        if (!open) {
+          setImportError(undefined);
+        }
+      }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Import deck</DialogTitle>
             <DialogDescription>
-              Import a saved `.webdeck.json` file and preview it before replacing current local data.
+              Import a saved `.webdeck.json` file and confirm before replacing current local data.
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
-            <Field>
+            <Field data-invalid={importError ? true : undefined}>
               <FieldLabel htmlFor="deck-import-file">Import deck file</FieldLabel>
               <FieldContent>
                 <Input
                   id="deck-import-file"
                   name="deck-import-file"
                   accept=".json,.webdeck.json,application/json"
+                  aria-invalid={importError ? true : undefined}
+                  autoComplete="off"
                   type="file"
                   onChange={(event) => {
                     const file = event.currentTarget.files?.[0];
@@ -550,6 +566,12 @@ export function WebdeckApp({
                 />
               </FieldContent>
             </Field>
+            {importError ? (
+              <Alert variant="destructive">
+                <AlertTitle>Import failed</AlertTitle>
+                <AlertDescription>{importError}</AlertDescription>
+              </Alert>
+            ) : null}
           </FieldGroup>
         </DialogContent>
       </Dialog>
@@ -571,7 +593,6 @@ export function WebdeckApp({
         onSubmit={handleConnect}
       />
       <ConfirmActionCall />
-      <ImportPreviewCall />
     </main>
   );
 }

@@ -1,15 +1,15 @@
-import { useEffect, useRef } from "react";
 import { createCallable } from "react-call";
 
-import { Button } from "../../components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../../components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
 
 type ConfirmActionCallProps = {
   title: string;
@@ -31,47 +31,38 @@ function ConfirmActionDialog({
     end: (value: boolean) => void;
   };
 }) {
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    confirmButtonRef.current?.focus();
-  }, []);
-
   return (
-    <Dialog open onOpenChange={(open) => {
+    <AlertDialog open onOpenChange={(open) => {
       if (!open) {
         call.end(false);
       }
     }}
     >
-      <DialogContent showCloseButton={false} className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button
-            ref={confirmButtonRef}
-            type="button"
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction
             variant={confirmVariant}
             onClick={() => {
               call.end(true);
             }}
           >
             {confirmLabel}
-          </Button>
-          <Button
-            type="button"
+          </AlertDialogAction>
+          <AlertDialogCancel
             variant="outline"
             onClick={() => {
               call.end(false);
             }}
           >
             {cancelLabel}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
