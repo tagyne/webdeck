@@ -134,13 +134,6 @@ export function WebdeckApp({
   const lastError = useStore(obsStore, (state) => state.lastError);
   const previousConnectionStatusRef = useRef(connectionStatus);
 
-  const summary = useMemo(() => {
-    return [
-      isStreaming ? "stream live" : "stream idle",
-      isRecordPaused ? "record paused" : "record ready",
-    ].join(" / ");
-  }, [isRecordPaused, isStreaming]);
-
   const obsStateSnapshot = useMemo(() => ({
     connectionStatus,
     activeSceneName,
@@ -438,9 +431,6 @@ export function WebdeckApp({
               hasSavedConnection={Boolean(connection)}
               status={connectionStatus}
             />
-            <p className="truncate text-sm text-muted-foreground">
-              {connection ? `${connection.host}:${connection.port}` : "No OBS endpoint saved"} · {summary}
-            </p>
           </div>
 
           <div aria-label="Deck actions" className="flex flex-wrap items-center justify-end gap-2" role="group">

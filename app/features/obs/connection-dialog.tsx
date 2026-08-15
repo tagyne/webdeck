@@ -2,13 +2,6 @@ import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -74,41 +67,27 @@ export function ConnectionDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-6 sm:p-7">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-3 pr-10">
-            <div className="flex flex-col gap-2">
-              <DialogTitle>OBS connection</DialogTitle>
-              <DialogDescription>
-                Configure the local OBS WebSocket endpoint in a dedicated modal so the deck can stay focused on live controls.
-              </DialogDescription>
-            </div>
+          <div className="flex items-start justify-between gap-3 pr-10">
+            <DialogTitle>OBS connection</DialogTitle>
             <Badge variant={getConnectionBadgeVariant(connectionStatus)}>
               {getConnectionLabel(connectionStatus, hasConnection)}
             </Badge>
           </div>
+          <DialogDescription>
+            Configure the local OBS WebSocket endpoint in a dedicated modal so the deck can stay focused on live controls.
+          </DialogDescription>
         </DialogHeader>
 
-        <Card className="border border-border/70 bg-background/80 shadow-none">
-          <CardHeader>
-            <CardTitle className="text-lg">Current endpoint</CardTitle>
-            <CardDescription>
-              {connection
-                ? `${connection.host}:${connection.port}`
-                : "No OBS endpoint saved on this device yet."}
-            </CardDescription>
-          </CardHeader>
-          {connectionStatus !== "connected" && hasConnection ? (
-            <CardContent>
-              <Alert>
-                <AlertTitle>OBS connection unavailable</AlertTitle>
-                <AlertDescription>
-                  <p>
-                    {lastError ?? "Reconnect OBS to restore action execution and trusted live feedback."}
-                  </p>
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          ) : null}
-        </Card>
+        {connectionStatus !== "connected" && hasConnection ? (
+          <Alert>
+            <AlertTitle>OBS connection unavailable</AlertTitle>
+            <AlertDescription>
+              <p>
+                {lastError ?? "Reconnect OBS to restore action execution and trusted live feedback."}
+              </p>
+            </AlertDescription>
+          </Alert>
+        ) : null}
 
         {isLoading ? (
           <div className="px-1 py-2 text-sm text-muted-foreground">Loading saved connection settings...</div>
