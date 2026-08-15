@@ -2,8 +2,14 @@ import { useEffect, useRef } from "react";
 import { createCallable } from "react-call";
 
 import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Dialog, DialogContent } from "../../components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 
 export type ImportPreview = {
   deckName: string;
@@ -36,46 +42,39 @@ function ImportPreviewDialog({
       }
     }}
     >
-      <DialogContent showCloseButton={false} className="max-w-2xl p-0">
-        <Card
-          aria-label="Import preview"
-          className="border-0 bg-muted/30 shadow-none"
-          role="dialog"
-          size="sm"
-        >
-          <CardHeader>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              Preview
-            </p>
-            <CardTitle className="text-2xl font-semibold">{deckName}</CardTitle>
-            <CardDescription>{gridLabel}</CardDescription>
-            <CardDescription>{buttonCountLabel}</CardDescription>
-            <CardDescription>
-              {hasConnection ? "Connection settings included" : "No connection settings included"}
-            </CardDescription>
-          </CardHeader>
+      <DialogContent showCloseButton={false} className="max-w-2xl bg-muted/30">
+        <DialogHeader>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Preview
+          </p>
+          <DialogTitle className="text-2xl font-semibold">{deckName}</DialogTitle>
+          <DialogDescription>{gridLabel}</DialogDescription>
+          <DialogDescription>{buttonCountLabel}</DialogDescription>
+          <DialogDescription>
+            {hasConnection ? "Connection settings included" : "No connection settings included"}
+          </DialogDescription>
+        </DialogHeader>
 
-          <CardContent className="flex gap-3">
-            <Button
-              ref={confirmButtonRef}
-              className="flex-1"
-              onClick={() => {
-                call.end(true);
-              }}
-            >
-              Replace current deck
-            </Button>
-            <Button
-              className="flex-1"
-              variant="secondary"
-              onClick={() => {
-                call.end(false);
-              }}
-            >
-              Cancel
-            </Button>
-          </CardContent>
-        </Card>
+        <DialogFooter className="sm:justify-start">
+          <Button
+            ref={confirmButtonRef}
+            className="sm:min-w-40"
+            onClick={() => {
+              call.end(true);
+            }}
+          >
+            Replace current deck
+          </Button>
+          <Button
+            className="sm:min-w-32"
+            variant="secondary"
+            onClick={() => {
+              call.end(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
