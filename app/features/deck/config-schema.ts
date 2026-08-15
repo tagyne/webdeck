@@ -9,6 +9,10 @@ import {
   type IconRef,
 } from "./types";
 import {
+  DEFAULT_DECK_BUTTON_COLOR,
+  normalizeDeckButtonColor,
+} from "./button-colors";
+import {
   OBS_ACTION_TYPES,
   type DeckButtonAction,
   type ObsConnectionSettings,
@@ -247,7 +251,7 @@ function parseButtons(input: unknown, grid: DeckGrid, issues: string[]): DeckBut
         label: typeof item.label === "string" ? item.label.trim() : "",
         icon,
         iconSize: parseIconSize(item.iconSize),
-        color: item.color,
+        color: normalizeDeckButtonColor(item.color ?? DEFAULT_DECK_BUTTON_COLOR),
         action,
       },
     ];

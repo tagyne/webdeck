@@ -4,6 +4,7 @@ import { LucideIcon } from "./lucide-icon";
 import type { DeckButton as DeckButtonModel } from "./types";
 import type { ObsState } from "../obs/types";
 import { getDeckButtonStateMeta } from "./deck-button-state";
+import { getDeckButtonColor } from "./button-colors";
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 const iconSizeClassMap = {
@@ -35,6 +36,7 @@ export function DeckButton({
     : `Slot ${slot + 1}: Empty slot`;
   const stateMeta = button && obsState ? getDeckButtonStateMeta(button, obsState) : undefined;
   const isDisabled = !isEditMode && Boolean(isBusy || stateMeta?.isDisabled);
+  const buttonColor = button ? getDeckButtonColor(button.color) : null;
 
   return (
     <div className="relative h-full w-full">
@@ -70,11 +72,17 @@ export function DeckButton({
         className={cn(
           "h-full w-full items-stretch overflow-hidden rounded-[1.75rem] p-0 text-left shadow-none",
           button
-            ? "bg-background hover:bg-muted/60"
+            ? [
+                "border-transparent",
+                buttonColor?.bgClass,
+                buttonColor?.textClass,
+                "hover:brightness-95",
+              ]
             : "border-dashed bg-background text-foreground hover:bg-muted/60",
-          stateMeta?.isActive && "bg-muted border-foreground/20 shadow-inner",
+          stateMeta?.isActive && "border-foreground/20 shadow-inner ring-1 ring-white/30",
           stateMeta && !stateMeta.isActive && !stateMeta.isDisabled && "opacity-80",
-          isEditMode && "border-primary/35 bg-muted/35 hover:border-primary/55 hover:bg-muted",
+          isEditMode && button && "border-primary/35 hover:border-primary/55",
+          isEditMode && !button && "bg-muted/35 hover:border-primary/55 hover:bg-muted",
         )}
         disabled={isDisabled}
         onClick={onPress}
@@ -82,16 +90,17 @@ export function DeckButton({
         {button ? (
           <div
             className={cn(
-              "flex h-full min-h-0 flex-col items-center justify-center gap-3 rounded-[calc(1.75rem-2px)] p-5 text-center",
+              "flex h-full min-h-0 w-full flex-col items-center justify-center gap-3 p-5 text-center transition-opacity",
+              isDisabled && "opacity-70",
               isEditMode && "pt-11",
             )}
           >
             <LucideIcon
-              className={cn(iconSizeClassMap[button.iconSize ?? "md"], "text-foreground")}
+              className={cn(iconSizeClassMap[button.iconSize ?? "md"])}
               name={button.icon.name}
             />
             {buttonLabel ? (
-              <p className="max-w-full truncate text-sm font-medium text-foreground">
+              <p className="max-w-full truncate text-sm font-medium">
                 {buttonLabel}
               </p>
             ) : null}

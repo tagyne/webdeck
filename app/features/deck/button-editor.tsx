@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
+import { cn } from "../../lib/utils";
 import { Button } from "../../components/ui/button";
 import {
   Card,
@@ -29,7 +30,9 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "../../components/ui/native-select";
+import { ButtonColorDialog } from "./button-color-dialog";
 import { DeckButton as DeckButtonPreview } from "./deck-button";
+import { getDeckButtonColor, type DeckButtonColor } from "./button-colors";
 import { DeckIconCombobox } from "./deck-icon-combobox";
 import {
   DECK_ICON_SIZES,
@@ -45,6 +48,7 @@ type EditorFormValues = {
   label: string;
   iconName: string;
   iconSize: DeckIconSize;
+  color: DeckButtonColor;
   actionType: DeckButtonAction["type"];
   inputName: string;
   sceneName: string;
@@ -67,6 +71,7 @@ function getInitialValues(button?: DeckButton): EditorFormValues {
     label: button?.label ?? "",
     iconName: button?.icon.name ?? "mic",
     iconSize: button?.iconSize ?? "md",
+    color: button?.color ?? "slate",
     actionType: action?.type ?? "toggleInputMute",
     inputName: action?.type === "toggleInputMute" ? action.inputName : "",
     sceneName:
@@ -155,10 +160,12 @@ export function ButtonEditor({
 }) {
   const labelInputRef = useRef<HTMLInputElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isColorDialogOpen, setIsColorDialogOpen] = useState(false);
   const {
     control,
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<EditorFormValues>({
     defaultValues: getInitialValues(button),
@@ -183,6 +190,11 @@ export function ButtonEditor({
     control,
     name: "iconSize",
     defaultValue: button?.iconSize ?? "md",
+  });
+  const color = useWatch({
+    control,
+    name: "color",
+    defaultValue: button?.color ?? "slate",
   });
   const inputName = useWatch({
     control,
@@ -213,7 +225,7 @@ export function ButtonEditor({
       name: iconName as DeckButton["icon"]["name"],
     },
     iconSize,
-    color: button?.color ?? "#737373",
+    color,
     action: createAction({
       label,
       iconName,
@@ -222,7 +234,7 @@ export function ButtonEditor({
       sceneName,
       sourceName,
     }),
-  }), [actionType, button?.color, button?.id, iconName, iconSize, inputName, label, sceneName, slot, sourceName]);
+  }), [actionType, button?.id, color, iconName, iconSize, inputName, label, sceneName, slot, sourceName]);
 
   useEffect(() => {
     labelInputRef.current?.focus();
@@ -245,7 +257,7 @@ export function ButtonEditor({
           name: values.iconName as DeckButton["icon"]["name"],
         },
         iconSize: values.iconSize,
-        color: button?.color ?? "#737373",
+        color: values.color,
         action: createAction(values),
       },
     });
@@ -262,197 +274,228 @@ export function ButtonEditor({
       setIsDeleting(false);
     }
   };
+  const selectedColor = getDeckButtonColor(color);
 
   return (
-    <form
-      aria-label={`Edit slot ${slot + 1}`}
-      className="flex max-h-[calc(100vh-8rem)] flex-col gap-6"
-      onSubmit={handleSubmit(submit)}
-    >
-      <DialogHeader>
-        <DialogTitle>{button ? `Edit Slot ${slot + 1}` : "Add Button"}</DialogTitle>
-        <DialogDescription>
-          Configure the icon, label, and OBS action for this deck button.
-        </DialogDescription>
-      </DialogHeader>
+    <>
+      <form
+        aria-label={`Edit slot ${slot + 1}`}
+        className="flex max-h-[calc(100vh-8rem)] flex-col gap-6"
+        onSubmit={handleSubmit(submit)}
+      >
+        <DialogHeader>
+          <DialogTitle>{button ? `Edit Slot ${slot + 1}` : "Add Button"}</DialogTitle>
+          <DialogDescription>
+            Configure the icon, label, OBS action, and background color for this deck button.
+          </DialogDescription>
+        </DialogHeader>
 
-      <div className="grid min-h-0 gap-6 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_16rem]">
-        <div className="flex flex-col gap-6">
-          <FieldSet>
-            <FieldGroup>
-              <Field data-invalid={Boolean(errors.label)}>
-                <FieldLabel htmlFor="button-label">Label</FieldLabel>
-                <FieldContent>
-                  <Input
-                    id="button-label"
-                    placeholder="Mic"
-                    {...labelField}
-                    aria-invalid={Boolean(errors.label)}
-                    ref={(element) => {
-                      labelField.ref(element);
-                      labelInputRef.current = element;
-                    }}
-                  />
-                  <FieldError errors={[errors.label]} />
-                </FieldContent>
-              </Field>
+        <div className="grid min-h-0 gap-6 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_16rem]">
+          <div className="flex flex-col gap-6">
+            <FieldSet>
+              <FieldGroup>
+                <Field data-invalid={Boolean(errors.label)}>
+                  <FieldLabel htmlFor="button-label">Label</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      id="button-label"
+                      placeholder="Mic"
+                      {...labelField}
+                      aria-invalid={Boolean(errors.label)}
+                      ref={(element) => {
+                        labelField.ref(element);
+                        labelInputRef.current = element;
+                      }}
+                    />
+                    <FieldError errors={[errors.label]} />
+                  </FieldContent>
+                </Field>
 
-              <Field>
-                <FieldLabel htmlFor="button-icon">Icon</FieldLabel>
-                <FieldContent>
-                  <Controller
-                    control={control}
-                    name="iconName"
-                    render={({ field }) => (
-                      <DeckIconCombobox
-                        ariaInvalid={false}
-                        id="button-icon"
-                        name={field.name}
-                        value={field.value as WebdeckIconName}
-                        onValueChange={field.onChange}
+                <Field>
+                  <FieldLabel htmlFor="button-icon">Icon</FieldLabel>
+                  <FieldContent>
+                    <Controller
+                      control={control}
+                      name="iconName"
+                      render={({ field }) => (
+                        <DeckIconCombobox
+                          ariaInvalid={false}
+                          id="button-icon"
+                          name={field.name}
+                          value={field.value as WebdeckIconName}
+                          onValueChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="button-icon-size">Icon Size</FieldLabel>
+                  <FieldContent>
+                    <NativeSelect id="button-icon-size" {...register("iconSize")}>
+                      {DECK_ICON_SIZES.map((size) => (
+                        <NativeSelectOption key={size} value={size}>
+                          {size.toUpperCase()}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </FieldContent>
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="button-color-trigger">Background color</FieldLabel>
+                  <FieldContent>
+                    <Button
+                      id="button-color-trigger"
+                      type="button"
+                      variant="outline"
+                      className="justify-start gap-3"
+                      onClick={() => setIsColorDialogOpen(true)}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={cn("size-4 rounded-full border border-border", selectedColor.bgClass)}
                       />
-                    )}
+                      <span>{selectedColor.label}</span>
+                    </Button>
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+            </FieldSet>
+
+            <FieldSet>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="button-action-type">Action type</FieldLabel>
+                  <FieldContent>
+                    <NativeSelect id="button-action-type" {...register("actionType")}>
+                      {OBS_ACTION_TYPES.map((actionTypeOption) => (
+                        <NativeSelectOption key={actionTypeOption} value={actionTypeOption}>
+                          {ACTION_LABELS[actionTypeOption]}
+                        </NativeSelectOption>
+                      ))}
+                    </NativeSelect>
+                  </FieldContent>
+                </Field>
+
+                {actionType === "toggleInputMute" ? (
+                  <Field data-invalid={Boolean(errors.inputName)}>
+                    <FieldLabel htmlFor="action-input-name">Input name</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        id="action-input-name"
+                        placeholder="Mic/Aux"
+                        {...register("inputName", {
+                          validate: (value) =>
+                            actionType !== "toggleInputMute" || value.trim().length > 0 || "Input name is required.",
+                        })}
+                        aria-invalid={Boolean(errors.inputName)}
+                      />
+                      <FieldError errors={[errors.inputName]} />
+                    </FieldContent>
+                  </Field>
+                ) : null}
+
+                {actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility" ? (
+                  <Field data-invalid={Boolean(errors.sceneName)}>
+                    <FieldLabel htmlFor="action-scene-name">Scene name</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        id="action-scene-name"
+                        placeholder="Gameplay"
+                        {...register("sceneName", {
+                          validate: (value) =>
+                            actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility"
+                              ? value.trim().length > 0 || "Scene name is required."
+                              : true,
+                        })}
+                        aria-invalid={Boolean(errors.sceneName)}
+                      />
+                      <FieldError errors={[errors.sceneName]} />
+                    </FieldContent>
+                  </Field>
+                ) : null}
+
+                {actionType === "toggleSourceVisibility" ? (
+                  <Field data-invalid={Boolean(errors.sourceName)}>
+                    <FieldLabel htmlFor="action-source-name">Source name</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        id="action-source-name"
+                        placeholder="Camera"
+                        {...register("sourceName", {
+                          validate: (value) =>
+                            actionType !== "toggleSourceVisibility" || value.trim().length > 0 || "Source name is required.",
+                        })}
+                        aria-invalid={Boolean(errors.sourceName)}
+                      />
+                      <FieldError errors={[errors.sourceName]} />
+                    </FieldContent>
+                  </Field>
+                ) : null}
+              </FieldGroup>
+            </FieldSet>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <Card className="bg-muted/30">
+              <CardHeader>
+                <CardTitle>Preview</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <div className="aspect-square">
+                  <DeckButtonPreview
+                    slot={slot}
+                    button={previewButton}
+                    isBusy={false}
+                    onPress={() => undefined}
                   />
-                </FieldContent>
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="button-icon-size">Icon Size</FieldLabel>
-                <FieldContent>
-                  <NativeSelect id="button-icon-size" {...register("iconSize")}>
-                    {DECK_ICON_SIZES.map((size) => (
-                      <NativeSelectOption key={size} value={size}>
-                        {size.toUpperCase()}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
-                </FieldContent>
-              </Field>
-            </FieldGroup>
-          </FieldSet>
-
-          <FieldSet>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="button-action-type">Action type</FieldLabel>
-                <FieldContent>
-                  <NativeSelect id="button-action-type" {...register("actionType")}>
-                    {OBS_ACTION_TYPES.map((actionTypeOption) => (
-                      <NativeSelectOption key={actionTypeOption} value={actionTypeOption}>
-                        {ACTION_LABELS[actionTypeOption]}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
-                </FieldContent>
-              </Field>
-
-              {actionType === "toggleInputMute" ? (
-                <Field data-invalid={Boolean(errors.inputName)}>
-                  <FieldLabel htmlFor="action-input-name">Input name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id="action-input-name"
-                      placeholder="Mic/Aux"
-                      {...register("inputName", {
-                        validate: (value) =>
-                          actionType !== "toggleInputMute" || value.trim().length > 0 || "Input name is required.",
-                      })}
-                      aria-invalid={Boolean(errors.inputName)}
-                    />
-                    <FieldError errors={[errors.inputName]} />
-                  </FieldContent>
-                </Field>
-              ) : null}
-
-              {actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility" ? (
-                <Field data-invalid={Boolean(errors.sceneName)}>
-                  <FieldLabel htmlFor="action-scene-name">Scene name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id="action-scene-name"
-                      placeholder="Gameplay"
-                      {...register("sceneName", {
-                        validate: (value) =>
-                          actionType === "setCurrentProgramScene" || actionType === "toggleSourceVisibility"
-                            ? value.trim().length > 0 || "Scene name is required."
-                            : true,
-                      })}
-                      aria-invalid={Boolean(errors.sceneName)}
-                    />
-                    <FieldError errors={[errors.sceneName]} />
-                  </FieldContent>
-                </Field>
-              ) : null}
-
-              {actionType === "toggleSourceVisibility" ? (
-                <Field data-invalid={Boolean(errors.sourceName)}>
-                  <FieldLabel htmlFor="action-source-name">Source name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id="action-source-name"
-                      placeholder="Camera"
-                      {...register("sourceName", {
-                        validate: (value) =>
-                          actionType !== "toggleSourceVisibility" || value.trim().length > 0 || "Source name is required.",
-                      })}
-                      aria-invalid={Boolean(errors.sourceName)}
-                    />
-                    <FieldError errors={[errors.sourceName]} />
-                  </FieldContent>
-                </Field>
-              ) : null}
-            </FieldGroup>
-          </FieldSet>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <Card className="bg-muted/30">
-            <CardHeader>
-              <CardTitle>Preview</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="aspect-square">
-                <DeckButtonPreview
-                  slot={slot}
-                  button={previewButton}
-                  isBusy={false}
-                  onPress={() => undefined}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+        <DialogFooter className="items-stretch sm:items-center sm:justify-between">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            {button ? (
+              <LoadingButton
+                type="button"
+                variant="destructive"
+                loading={isDeleting}
+                loadingLabel="Removing…"
+                onClick={handleDelete}
+              >
+                Remove button
+              </LoadingButton>
+            ) : null}
+          </div>
 
-      <DialogFooter className="items-stretch sm:items-center sm:justify-between">
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-          {button ? (
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Button className="sm:min-w-32" type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
             <LoadingButton
-              type="button"
-              variant="destructive"
-              loading={isDeleting}
-              loadingLabel="Removing…"
-              onClick={handleDelete}
+              className="sm:min-w-32"
+              type="submit"
+              loading={isSubmitting}
+              loadingLabel="Saving…"
             >
-              Remove button
+              {button ? "Save changes" : "Add button"}
             </LoadingButton>
-          ) : null}
-        </div>
+          </div>
+        </DialogFooter>
+      </form>
 
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-          <Button className="sm:min-w-32" type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <LoadingButton
-            className="sm:min-w-32"
-            type="submit"
-            loading={isSubmitting}
-            loadingLabel="Saving…"
-          >
-            {button ? "Save changes" : "Add button"}
-          </LoadingButton>
-        </div>
-      </DialogFooter>
-    </form>
+      <ButtonColorDialog
+        open={isColorDialogOpen}
+        value={color}
+        onOpenChange={setIsColorDialogOpen}
+        onSelect={(nextColor) => {
+          setValue("color", nextColor, { shouldDirty: true });
+        }}
+      />
+    </>
   );
 }

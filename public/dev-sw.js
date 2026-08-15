@@ -11,9 +11,10 @@ self.addEventListener("activate", (event) => {
     const cacheNames = await caches.keys();
     await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
 
-    await self.clients.claim();
-
-    const clients = await self.clients.matchAll({ type: "window" });
+    const clients = await self.clients.matchAll({
+      type: "window",
+      includeUncontrolled: true,
+    });
     for (const client of clients) {
       client.postMessage({ type: "webdeck-dev-sw-cleaned" });
     }

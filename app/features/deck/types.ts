@@ -4,6 +4,11 @@ import {
   isDangerousDeckAction,
 } from "../obs/types";
 import { iconNames } from "lucide-react/dynamic";
+import {
+  DEFAULT_DECK_BUTTON_COLOR,
+  normalizeDeckButtonColor,
+  type DeckButtonColor,
+} from "./button-colors";
 
 export const WEBDECK_ICON_NAMES = iconNames;
 export type WebdeckIconName = (typeof iconNames)[number];
@@ -26,7 +31,7 @@ export type DeckButton = {
   label: string;
   icon: IconRef;
   iconSize: DeckIconSize;
-  color: string;
+  color: DeckButtonColor;
   action: DeckButtonAction;
 };
 
@@ -62,7 +67,7 @@ export function createStarterDeckConfig(): DeckConfig {
         label: "Mic",
         icon: { type: "lucide", name: "mic" },
         iconSize: "md",
-        color: "#dc2626",
+        color: "red",
         action: { type: "toggleInputMute", inputName: "Mic/Aux" },
       },
       {
@@ -71,7 +76,7 @@ export function createStarterDeckConfig(): DeckConfig {
         label: "Gameplay",
         icon: { type: "lucide", name: "monitor" },
         iconSize: "md",
-        color: "#0f766e",
+        color: "teal",
         action: { type: "setCurrentProgramScene", sceneName: "Gameplay" },
       },
       {
@@ -80,7 +85,7 @@ export function createStarterDeckConfig(): DeckConfig {
         label: "Camera",
         icon: { type: "lucide", name: "video" },
         iconSize: "md",
-        color: "#2563eb",
+        color: "blue",
         action: {
           type: "toggleSourceVisibility",
           sceneName: "Gameplay",
@@ -93,7 +98,7 @@ export function createStarterDeckConfig(): DeckConfig {
         label: "Go Live",
         icon: { type: "lucide", name: "radio" },
         iconSize: "md",
-        color: "#ea580c",
+        color: "orange",
         action: { type: "startStream" },
       },
       {
@@ -102,7 +107,7 @@ export function createStarterDeckConfig(): DeckConfig {
         label: "Pause Rec",
         icon: { type: "lucide", name: "pause" },
         iconSize: "md",
-        color: "#7c3aed",
+        color: "violet",
         action: { type: "toggleRecordPause" },
       },
     ],
@@ -115,6 +120,7 @@ export function normalizeDeckConfig(deck: DeckConfig): DeckConfig {
     buttons: deck.buttons.map((button) => ({
       ...button,
       iconSize: button.iconSize ?? "md",
+      color: normalizeDeckButtonColor(button.color ?? DEFAULT_DECK_BUTTON_COLOR),
     })),
   };
 }
