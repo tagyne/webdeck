@@ -95,12 +95,15 @@ export function ConnectionDialog({
           <ConnectionForm
             defaultValues={connection}
             error={error}
-            isSubmitting={isSubmitting}
+            formId="obs-connection-form"
             onSubmit={onSubmit}
           />
         )}
 
-        <DialogFooter className="mt-2">
+        <DialogFooter>
+          <Button form="obs-connection-form" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Connecting…" : "Connect OBS"}
+          </Button>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>

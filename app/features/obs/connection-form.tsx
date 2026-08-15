@@ -3,7 +3,6 @@ import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
-import { Button } from "../../components/ui/button";
 import {
   Field,
   FieldContent,
@@ -21,13 +20,13 @@ type ConnectionFormValues = {
 };
 
 export function ConnectionForm({
+  formId = "obs-connection-form",
   defaultValues,
-  isSubmitting,
   error,
   onSubmit,
 }: {
+  formId?: string;
   defaultValues?: ObsConnectionSettings;
-  isSubmitting: boolean;
   error?: string;
   onSubmit: (values: ObsConnectionSettings) => Promise<void>;
 }) {
@@ -61,7 +60,7 @@ export function ConnectionForm({
   };
 
   return (
-    <form className="flex flex-col gap-5" onSubmit={handleSubmit(submit)}>
+    <form className="flex flex-col gap-5" id={formId} onSubmit={handleSubmit(submit)}>
       <FieldGroup>
         <Field data-invalid={Boolean(errors.host)}>
           <FieldLabel htmlFor="obs-host">Host</FieldLabel>
@@ -120,10 +119,6 @@ export function ConnectionForm({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
-
-      <Button className="w-full" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Connecting..." : "Connect OBS"}
-      </Button>
     </form>
   );
 }
