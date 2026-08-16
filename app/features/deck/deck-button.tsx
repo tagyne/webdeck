@@ -7,11 +7,7 @@ import { getDeckButtonStateMeta } from "./deck-button-state";
 import { getDeckButtonColor } from "./button-colors";
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
-const iconSizeClassMap = {
-  sm: "size-8",
-  md: "size-10",
-  lg: "size-12",
-} as const;
+const responsiveIconSizeClassName = "size-8 md:size-10 lg:size-12";
 
 export function DeckButton({
   slot,
@@ -96,7 +92,7 @@ export function DeckButton({
             )}
           >
             <LucideIcon
-              className={cn(iconSizeClassMap[button.iconSize ?? "md"])}
+              className={responsiveIconSizeClassName}
               name={button.icon.name}
             />
             {buttonLabel ? (
@@ -107,7 +103,10 @@ export function DeckButton({
           </div>
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-[calc(1.75rem-2px)] px-5 py-6 text-center">
-            <span aria-hidden="true" className="flex size-10 items-center justify-center text-5xl font-light leading-none text-muted-foreground">
+            <span
+              aria-hidden="true"
+              className="flex size-8 items-center justify-center text-4xl leading-none font-light text-muted-foreground md:size-10 md:text-5xl lg:size-12 lg:text-6xl"
+            >
               +
             </span>
             {isEditMode ? (
