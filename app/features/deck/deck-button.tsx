@@ -7,7 +7,7 @@ import { getDeckButtonStateMeta } from "./deck-button-state";
 import { getDeckButtonColor } from "./button-colors";
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
-const responsiveIconSizeClassName = "size-8 md:size-10 lg:size-12";
+const responsiveIconSizeClassName = "size-8 deck-tablet:size-10 deck-desktop:size-12";
 
 export function DeckButton({
   slot,
@@ -105,7 +105,7 @@ export function DeckButton({
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-[calc(1.75rem-2px)] px-5 py-6 text-center">
             <span
               aria-hidden="true"
-              className="flex size-8 items-center justify-center text-4xl leading-none font-light text-muted-foreground md:size-10 md:text-5xl lg:size-12 lg:text-6xl"
+              className="flex size-8 items-center justify-center text-4xl leading-none font-light text-muted-foreground deck-tablet:size-10 deck-tablet:text-5xl deck-desktop:size-12 deck-desktop:text-6xl"
             >
               +
             </span>

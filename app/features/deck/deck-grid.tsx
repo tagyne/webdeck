@@ -35,7 +35,12 @@ export function DeckGrid({
   const nextSlot = getNextAvailableSlot(sortedButtons.map((button) => button.slot));
 
   return (
-    <div className={cn("grid w-full grid-cols-3 content-start gap-3 md:grid-cols-6 md:gap-4 lg:grid-cols-9", className)}>
+    <div
+      className={cn(
+        "grid w-full grid-cols-3 content-start gap-3 deck-tablet:grid-cols-6 deck-tablet:gap-4 deck-desktop:grid-cols-9",
+        className,
+      )}
+    >
       {sortedButtons.map((button) => (
         <DeckButton
           key={`${button.slot}-${isEditMode ? "edit" : "view"}`}

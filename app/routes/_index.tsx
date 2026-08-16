@@ -509,7 +509,7 @@ export function WebdeckApp({
                 onPressSlot={handlePressSlot}
               />
             ) : (
-              <div className="grid flex-1 grid-cols-3 content-start gap-3 md:grid-cols-6 md:gap-4 lg:grid-cols-9">
+              <div className="grid flex-1 grid-cols-3 content-start gap-3 deck-tablet:grid-cols-6 deck-tablet:gap-4 deck-desktop:grid-cols-9">
                 {Array.from({ length: getDeckSlotCount(DEFAULT_DECK_GRID) }, (_, slot) => (
                   <Button
                     key={slot}
