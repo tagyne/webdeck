@@ -14,6 +14,10 @@ export async function readObsCalls(page: Page) {
   return page.evaluate(() => window.__WEBDECK_E2E__?.runtime?.getCalls() ?? []);
 }
 
+export async function readSavedDeck(page: Page) {
+  return page.evaluate(() => window.__WEBDECK_E2E__?.runtime?.getDeck());
+}
+
 export async function pushObsState(
   page: Page,
   partial: Record<string, unknown>,

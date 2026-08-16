@@ -3,7 +3,7 @@ import {
   type DeckButtonAction,
   isDangerousDeckAction,
 } from "../obs/types";
-import { iconNames } from "lucide-react/dynamic";
+import { iconNames } from "lucide-react/dynamic.js";
 import {
   DEFAULT_DECK_BUTTON_COLOR,
   normalizeDeckButtonColor,

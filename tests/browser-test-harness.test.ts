@@ -35,12 +35,19 @@ describe("browser test harness", () => {
     expect(harness!.connectionStore.getState().connection?.host).toBe("192.168.1.20");
     expect(harness!.deckStore.getState().deck?.name).toBe(starterDeck.name);
     expect(window.__WEBDECK_E2E__?.runtime?.getCalls()).toEqual([]);
+    expect(window.__WEBDECK_E2E__?.runtime?.getDeck()?.buttons).toEqual(starterDeck.buttons);
 
     await harness!.obsClient.startStream();
     expect(window.__WEBDECK_E2E__?.runtime?.getCalls()).toEqual([{ type: "startStream" }]);
 
     window.__WEBDECK_E2E__?.runtime?.clearCalls();
     expect(window.__WEBDECK_E2E__?.runtime?.getCalls()).toEqual([]);
+
+    await harness!.deckStore.getState().save({
+      ...starterDeck,
+      name: "Reordered Deck",
+    });
+    expect(window.__WEBDECK_E2E__?.runtime?.getDeck()?.name).toBe("Reordered Deck");
 
     window.__WEBDECK_E2E__?.runtime?.pushObsState({ isRecordPaused: true });
     expect(harness!.obsClient.state.isRecordPaused).toBe(true);

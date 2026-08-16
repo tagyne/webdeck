@@ -126,7 +126,7 @@ export function DeckGrid({
       {visibleButtons.map((button) => (
         canReorder ? (
           <SortableDeckButton
-            key={`${button.slot}-${isEditMode ? "edit" : "view"}`}
+            key={button.id}
             button={button}
             isBusy={activeSlot === button.slot}
             isEditMode={isEditMode}
@@ -136,7 +136,7 @@ export function DeckGrid({
           />
         ) : (
           <DeckButton
-            key={`${button.slot}-${isEditMode ? "edit" : "view"}`}
+            key={button.id}
             slot={button.slot}
             button={button}
             isBusy={activeSlot === button.slot}

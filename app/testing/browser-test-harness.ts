@@ -16,6 +16,7 @@ export type BrowserTestHarnessConfig = {
 export type BrowserTestHarnessRuntime = {
   clearCalls: () => void;
   getCalls: () => DeckButtonAction[];
+  getDeck: () => DeckConfig | undefined;
   pushObsState: (partial: Partial<ObsState>) => void;
 };
 
@@ -66,6 +67,9 @@ export function getBrowserTestHarnessProps(): BrowserTestHarnessAppProps | undef
     },
     getCalls() {
       return [...obsClient.calls];
+    },
+    getDeck() {
+      return savedDeck;
     },
     pushObsState(partial) {
       obsClient.pushState(partial);
