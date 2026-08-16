@@ -31,6 +31,7 @@ import {
 } from "../../components/ui/native-select";
 import { Separator } from "../../components/ui/separator";
 import { ButtonColorDialog } from "./button-color-dialog";
+import { ConfirmActionCall } from "../confirm/confirm-action-call";
 import { DeckButton as DeckButtonPreview } from "./deck-button";
 import { type DeckButtonColor } from "./button-colors";
 import { DeckIconCombobox } from "./deck-icon-combobox";
@@ -257,6 +258,17 @@ export function ButtonEditor({
   };
 
   const handleDelete = async () => {
+    const accepted = await ConfirmActionCall.call({
+      title: `Delete button in slot ${slot + 1}?`,
+      description: "This removes the button configuration from the deck. This action cannot be undone.",
+      confirmLabel: "Delete Button",
+      confirmVariant: "destructive",
+    });
+
+    if (!accepted) {
+      return;
+    }
+
     setIsDeleting(true);
 
     try {
