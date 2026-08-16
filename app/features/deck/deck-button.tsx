@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { Button } from "../../components/ui/button";
 import { cn } from "../../lib/utils";
 import { LucideIcon } from "./lucide-icon";
@@ -5,7 +6,7 @@ import type { DeckButton as DeckButtonModel } from "./types";
 import type { ObsState } from "../obs/types";
 import { getDeckButtonStateMeta } from "./deck-button-state";
 import { getDeckButtonColor } from "./button-colors";
-import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { GripVerticalIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 const responsiveIconSizeClassName = "size-8 deck-tablet:size-10 deck-desktop:size-12";
 
@@ -14,17 +15,21 @@ export function DeckButton({
   button,
   isBusy,
   isEditMode,
+  isDragging,
   onDelete,
   obsState,
   onPress,
+  dragHandleProps,
 }: {
   slot: number;
   button?: DeckButtonModel;
   isBusy?: boolean;
   isEditMode?: boolean;
+  isDragging?: boolean;
   onDelete?: () => void;
   obsState?: ObsState;
   onPress: () => void;
+  dragHandleProps?: ComponentProps<typeof Button>;
 }) {
   const buttonLabel = button?.label.trim();
   const accessibleName = button
@@ -47,6 +52,16 @@ export function DeckButton({
           </span>
           {button ? (
             <div className="pointer-events-auto flex items-center gap-1">
+              <Button
+                aria-label={`Reorder button in slot ${slot + 1}`}
+                size="icon-sm"
+                type="button"
+                variant="outline"
+                className="cursor-grab touch-none active:cursor-grabbing"
+                {...dragHandleProps}
+              >
+                <GripVerticalIcon />
+              </Button>
               <Button
                 aria-label={`Delete button in slot ${slot + 1}`}
                 size="icon-sm"
@@ -79,6 +94,7 @@ export function DeckButton({
           stateMeta && !stateMeta.isActive && !stateMeta.isDisabled && "opacity-80",
           isEditMode && button && "border-primary/35 hover:border-primary/55",
           isEditMode && !button && "bg-muted/35 hover:border-primary/55 hover:bg-muted",
+          isDragging && "opacity-50 ring-2 ring-primary/35",
         )}
         disabled={isDisabled}
         onClick={onPress}

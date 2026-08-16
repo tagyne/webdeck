@@ -506,6 +506,7 @@ export function WebdeckApp({
                 onDeleteSlot={(slot) => {
                   void handleQuickDeleteButton(slot);
                 }}
+                onReorder={handleSaveButton}
                 obsState={obsStateSnapshot}
                 onPressSlot={handlePressSlot}
               />
