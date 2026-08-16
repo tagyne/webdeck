@@ -32,8 +32,8 @@ export function DeckIconCombobox({
   ariaInvalid?: boolean;
   disabled?: boolean;
 }) {
-  const iconsPerRow = 6;
   const [open, setOpen] = useState(false);
+  const [iconsPerRow, setIconsPerRow] = useState(6);
   const [search, setSearch] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -59,17 +59,30 @@ export function DeckIconCombobox({
     }
 
     return rows;
-  }, [filteredIcons]);
+  }, [filteredIcons, iconsPerRow]);
 
   // TanStack Virtual is intentionally used here for the icon grid viewport.
   // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: iconRows.length,
     getScrollElement: () => listRef.current,
-    estimateSize: () => 108,
-    initialRect: { height: 500, width: 400 },
+    estimateSize: () => 64,
+    initialRect: { height: 500, width: iconsPerRow === 5 ? 352 : 430 },
     overscan: 3,
   });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 52.8124rem)");
+
+    const syncIconsPerRow = () => {
+      setIconsPerRow(mediaQuery.matches ? 5 : 6);
+    };
+
+    syncIconsPerRow();
+    mediaQuery.addEventListener("change", syncIconsPerRow);
+
+    return () => mediaQuery.removeEventListener("change", syncIconsPerRow);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -103,38 +116,38 @@ export function DeckIconCombobox({
       >
         <PopoverTrigger
           render={
-            <Button
+            <InputGroup
               aria-controls={`${id}-popover`}
               aria-expanded={open}
               aria-haspopup="dialog"
-              aria-invalid={ariaInvalid}
-              disabled={disabled}
               id={id}
-              type="button"
-              variant="outline"
               className={cn(
-                "h-auto w-full justify-between gap-3 px-3 py-2 text-left shadow-none",
-                "hover:bg-accent/50",
-                ariaInvalid && "border-destructive",
+                "w-full cursor-pointer gap-0 outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+                open && "border-ring ring-3 ring-ring/50",
+                ariaInvalid && "border-destructive ring-destructive/20",
+                disabled && "pointer-events-none opacity-50",
               )}
             >
-              <span className="flex min-w-0 items-center gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-foreground">
-                  <LucideIcon aria-hidden="true" name={value} />
-                </span>
-                <span className="min-w-0 truncate font-medium">{value}</span>
-              </span>
-              <SearchIcon
-                aria-hidden="true"
-                className="shrink-0 text-muted-foreground"
-              />
-            </Button>
+              <InputGroupAddon align="inline-start">
+                <LucideIcon aria-hidden="true" name={value} />
+              </InputGroupAddon>
+              <div
+                aria-invalid={ariaInvalid}
+                className="flex min-w-0 flex-1 items-center px-2.5 text-sm"
+                data-slot="input-group-control"
+              >
+                <span className="truncate font-medium">{value}</span>
+              </div>
+              <InputGroupAddon align="inline-end">
+                <SearchIcon aria-hidden="true" />
+              </InputGroupAddon>
+            </InputGroup>
           }
         />
 
         <PopoverContent
           align="start"
-          className="h-[500px] w-[500px] p-4"
+          className="h-[500px] w-[22rem] deck-tablet:w-[27rem] p-4"
           id={`${id}-popover`}
         >
           <div className="flex h-full flex-col gap-3">
@@ -185,7 +198,7 @@ export function DeckIconCombobox({
                             type="button"
                             variant={isSelected ? "secondary" : "outline"}
                             className={cn(
-                              "relative min-h-24 flex-1 px-2 py-3 text-center shadow-none [content-visibility:auto]",
+                              "relative size-14 p-0 text-center shadow-none [content-visibility:auto]",
                               !isSelected && "hover:bg-accent/50",
                             )}
                             onClick={() => {
@@ -203,17 +216,6 @@ export function DeckIconCombobox({
                           </Button>
                         );
                       })}
-                      {iconRows[virtualRow.index] &&
-                      iconRows[virtualRow.index].length < iconsPerRow
-                        ? Array.from({
-                            length: iconsPerRow - iconRows[virtualRow.index].length,
-                          }).map((_, placeholderIndex) => (
-                            <div
-                              key={`placeholder-${virtualRow.index}-${placeholderIndex}`}
-                              className="min-h-24 flex-1"
-                            />
-                          ))
-                        : null}
                     </div>
                   ))}
                 </div>
