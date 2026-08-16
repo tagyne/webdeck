@@ -19,6 +19,7 @@ import {
   FieldLabel,
 } from "../components/ui/field";
 import { Input } from "../components/ui/input";
+import { Skeleton } from "../components/ui/skeleton";
 import { Spinner } from "../components/ui/spinner";
 import { Separator } from "../components/ui/separator";
 import { toast } from "../components/ui/toast";
@@ -511,14 +512,11 @@ export function WebdeckApp({
             ) : (
               <div className="grid flex-1 grid-cols-3 content-start gap-3 deck-tablet:grid-cols-6 deck-tablet:gap-4 deck-desktop:grid-cols-9">
                 {Array.from({ length: getDeckSlotCount(DEFAULT_DECK_GRID) }, (_, slot) => (
-                  <Button
+                  <Skeleton
                     key={slot}
                     aria-label={`Slot ${slot + 1}: Loading`}
-                    variant="ghost"
-                    className="aspect-square h-auto w-full rounded-xl border border-dashed text-muted-foreground"
-                  >
-                    Slot {slot + 1}
-                  </Button>
+                    className="aspect-square w-full rounded-[1.75rem]"
+                  />
                 ))}
               </div>
             )}
