@@ -35,11 +35,9 @@ import { DeckButton as DeckButtonPreview } from "./deck-button";
 import { type DeckButtonColor } from "./button-colors";
 import { DeckIconCombobox } from "./deck-icon-combobox";
 import {
-  DECK_ICON_SIZES,
   OBS_ACTION_TYPES,
   type DeckButton,
   type DeckConfig,
-  type DeckIconSize,
   type WebdeckIconName,
 } from "./types";
 import type { DeckButtonAction } from "../obs/types";
@@ -47,7 +45,6 @@ import type { DeckButtonAction } from "../obs/types";
 type EditorFormValues = {
   label: string;
   iconName: string;
-  iconSize: DeckIconSize;
   color: DeckButtonColor;
   actionType: DeckButtonAction["type"];
   inputName: string;
@@ -70,7 +67,6 @@ function getInitialValues(button?: DeckButton): EditorFormValues {
   return {
     label: button?.label ?? "",
     iconName: button?.icon.name ?? "mic",
-    iconSize: button?.iconSize ?? "md",
     color: button?.color ?? "slate",
     actionType: action?.type ?? "toggleInputMute",
     inputName: action?.type === "toggleInputMute" ? action.inputName : "",
@@ -186,11 +182,6 @@ export function ButtonEditor({
     name: "iconName",
     defaultValue: button?.icon.name ?? "mic",
   });
-  const iconSize = useWatch({
-    control,
-    name: "iconSize",
-    defaultValue: button?.iconSize ?? "md",
-  });
   const color = useWatch({
     control,
     name: "color",
@@ -224,7 +215,7 @@ export function ButtonEditor({
       type: "lucide",
       name: iconName as DeckButton["icon"]["name"],
     },
-    iconSize,
+    iconSize: button?.iconSize ?? "md",
     color,
     action: createAction({
       label,
@@ -234,7 +225,7 @@ export function ButtonEditor({
       sceneName,
       sourceName,
     }),
-  }), [actionType, button?.id, color, iconName, iconSize, inputName, label, sceneName, slot, sourceName]);
+  }), [actionType, button?.iconSize, button?.id, color, iconName, inputName, label, sceneName, slot, sourceName]);
 
   useEffect(() => {
     labelInputRef.current?.focus();
@@ -256,7 +247,7 @@ export function ButtonEditor({
           type: "lucide",
           name: values.iconName as DeckButton["icon"]["name"],
         },
-        iconSize: values.iconSize,
+        iconSize: button?.iconSize ?? "md",
         color: values.color,
         action: createAction(values),
       },
@@ -325,19 +316,6 @@ export function ButtonEditor({
                         />
                       )}
                     />
-                  </FieldContent>
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="button-icon-size">Icon Size</FieldLabel>
-                  <FieldContent>
-                    <NativeSelect className="w-full" id="button-icon-size" {...register("iconSize")}>
-                      {DECK_ICON_SIZES.map((size) => (
-                        <NativeSelectOption key={size} value={size}>
-                          {size.toUpperCase()}
-                        </NativeSelectOption>
-                      ))}
-                    </NativeSelect>
                   </FieldContent>
                 </Field>
 
