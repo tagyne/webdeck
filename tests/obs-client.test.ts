@@ -41,4 +41,22 @@ describe("OBS adapter boundary", () => {
     expect(client.state.isStreaming).toBe(true);
     expect(client.state.isRecordPaused).toBe(true);
   });
+
+  it("switches profiles through the fake client", async () => {
+    const client = new FakeObsClient();
+
+    client.pushState({
+      profileNames: ["Gaming", "Streaming"],
+      currentProfileName: "Gaming",
+    });
+
+    await client.setCurrentProfile("Streaming");
+
+    expect(client.calls.at(-1)).toEqual({
+      type: "setCurrentProfile",
+      profileName: "Streaming",
+    });
+    expect(client.state.currentProfileName).toBe("Streaming");
+    expect(client.state.profileNames).toEqual(["Gaming", "Streaming"]);
+  });
 });

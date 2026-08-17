@@ -5,6 +5,8 @@ import type { ObsConnectionStatus } from "../features/obs/types";
 type ObsStoreState = {
   connectionStatus: ObsConnectionStatus;
   activeSceneName?: string;
+  currentProfileName?: string;
+  profileNames: string[];
   mutedInputs: Record<string, boolean>;
   visibleSources: Record<string, boolean>;
   isStreaming: boolean;
@@ -20,6 +22,8 @@ type ObsStoreState = {
   sync: (state: {
     connectionStatus: ObsConnectionStatus;
     activeSceneName?: string;
+    currentProfileName?: string;
+    profileNames: string[];
     mutedInputs: Record<string, boolean>;
     visibleSources: Record<string, boolean>;
     isStreaming: boolean;
@@ -32,6 +36,8 @@ export function createObsStore() {
   return createStore<ObsStoreState>()((set) => ({
     connectionStatus: "idle",
     activeSceneName: undefined,
+    currentProfileName: undefined,
+    profileNames: [],
     mutedInputs: {},
     visibleSources: {},
     isStreaming: false,

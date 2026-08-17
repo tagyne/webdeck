@@ -30,7 +30,7 @@ describe("OBS state feedback", () => {
       />,
     );
 
-    await screen.findByRole("heading", { name: /main obs deck/i });
+    await screen.findByRole("button", { name: /edit deck/i });
 
     await act(async () => {
       await client.connect({ host: "192.168.1.20", port: 4455 });
@@ -69,7 +69,7 @@ describe("OBS state feedback", () => {
       />,
     );
 
-    await screen.findByRole("heading", { name: /main obs deck/i });
+    await screen.findByRole("button", { name: /edit deck/i });
     await act(async () => {
       await client.connect({ host: "192.168.1.20", port: 4455 });
       await client.disconnect();
@@ -107,7 +107,7 @@ describe("OBS state feedback", () => {
       />,
     );
 
-    await screen.findByRole("heading", { name: /main obs deck/i });
+    await screen.findByRole("button", { name: /edit deck/i });
     await act(async () => {
       await client.connect({ host: "192.168.1.20", port: 4455 });
       await client.disconnect();
@@ -120,5 +120,44 @@ describe("OBS state feedback", () => {
     });
 
     expect(screen.queryByText(/obs connection lost/i)).not.toBeInTheDocument();
+  });
+
+  it("renders a floating profile dock and switches the OBS profile", async () => {
+    const client = new FakeObsClient();
+    client.pushState({
+      profileNames: ["Gaming", "Streaming", "Podcast"],
+      currentProfileName: "Gaming",
+    });
+
+    render(
+      <WebdeckApp
+        connectionStore={createConnectionStore({
+          repository: {
+            get: async () => ({ host: "192.168.1.20", port: 4455 }),
+            save: async () => undefined,
+          },
+        })}
+        deckStore={createDeckStore({
+          repository: {
+            get: async () => createStarterDeckConfig(),
+            save: async () => undefined,
+          },
+        })}
+        obsStore={createObsStore()}
+        obsClient={client}
+      />,
+    );
+
+    await screen.findByRole("tab", { name: /gaming/i });
+    expect(screen.getByRole("tab", { name: /gaming/i })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: /streaming/i })).toHaveAttribute("aria-selected", "false");
+
+    fireEvent.click(screen.getByRole("tab", { name: /streaming/i }));
+
+    await waitFor(() => {
+      expect(client.state.currentProfileName).toBe("Streaming");
+    });
+
+    expect(screen.getByRole("tab", { name: /streaming/i })).toHaveAttribute("aria-selected", "true");
   });
 });

@@ -11,7 +11,9 @@ import type {
 } from "./types";
 
 export class FakeObsClient implements ObsClient {
-  readonly calls: DeckButtonAction[] = [];
+  readonly calls: Array<
+    DeckButtonAction | { type: "setCurrentProfile"; profileName: string }
+  > = [];
   readonly listeners = new Set<ObsStateListener>();
   state: ObsState = createInitialObsState();
   private readonly connectErrorMessage?: string;
@@ -43,6 +45,15 @@ export class FakeObsClient implements ObsClient {
     this.state = {
       ...this.state,
       connectionStatus: "disconnected",
+    };
+    this.emit();
+  }
+
+  async setCurrentProfile(profileName: string) {
+    this.calls.push({ type: "setCurrentProfile", profileName });
+    this.state = {
+      ...this.state,
+      currentProfileName: profileName,
     };
     this.emit();
   }

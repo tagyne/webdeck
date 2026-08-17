@@ -61,6 +61,8 @@ export type ObsConnectionStatus =
 export type ObsState = {
   connectionStatus: ObsConnectionStatus;
   activeSceneName?: string;
+  currentProfileName?: string;
+  profileNames: string[];
   mutedInputs: Record<string, boolean>;
   visibleSources: Record<string, boolean>;
   isStreaming: boolean;

@@ -40,6 +40,7 @@ import {
 import { DeckGrid } from "../features/deck/deck-grid";
 import { ConnectionDialog } from "../features/obs/connection-dialog";
 import { runDeckAction } from "../features/obs/action-runner";
+import { ObsProfileDock } from "../features/obs/obs-profile-dock";
 import { ObsWebSocketClient } from "../features/obs/obs-client";
 import type { ObsClient } from "../features/obs/obs-client";
 import type { ObsConnectionSettings } from "../features/obs/types";
@@ -132,9 +133,12 @@ export function WebdeckApp({
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string>();
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
+  const [isSwitchingProfile, setIsSwitchingProfile] = useState(false);
 
   const connection = useStore(connectionStore, (state) => state.connection);
   const connectionStatus = useStore(obsStore, (state) => state.connectionStatus);
+  const currentProfileName = useStore(obsStore, (state) => state.currentProfileName);
+  const profileNames = useStore(obsStore, (state) => state.profileNames);
   const deck = useStore(deckStore, (state) => state.deck);
   const deckStatus = useStore(deckStore, (state) => state.status);
   const connectionLoadStatus = useStore(connectionStore, (state) => state.status);
@@ -149,6 +153,8 @@ export function WebdeckApp({
   const obsStateSnapshot = useMemo(() => ({
     connectionStatus,
     activeSceneName,
+    currentProfileName,
+    profileNames,
     mutedInputs,
     visibleSources,
     isStreaming,
@@ -160,7 +166,9 @@ export function WebdeckApp({
     isRecordPaused,
     isStreaming,
     lastError,
+    currentProfileName,
     mutedInputs,
+    profileNames,
     visibleSources,
   ]);
 
@@ -338,6 +346,31 @@ export function WebdeckApp({
     }
   };
 
+  const handleSelectProfile = async (profileName: string) => {
+    if (connectionStatus !== "connected" || isSwitchingProfile) {
+      return;
+    }
+
+    setIsSwitchingProfile(true);
+
+    try {
+      await obsClient.setCurrentProfile(profileName);
+      toast.add({
+        type: "success",
+        title: "Profile switched",
+        description: `OBS is now using ${profileName}.`,
+      });
+    } catch (error) {
+      toast.add({
+        type: "error",
+        title: "Profile switch failed",
+        description: error instanceof Error ? error.message : "Unable to switch OBS profile.",
+      });
+    } finally {
+      setIsSwitchingProfile(false);
+    }
+  };
+
   const handleSaveButton = async (nextDeck: ReturnType<typeof createStarterDeckConfig>) => {
     await deckStore.getState().save(nextDeck);
     setEditingSlot(null);
@@ -492,7 +525,7 @@ export function WebdeckApp({
         </div>
       </header>
 
-      <main className="grid min-h-screen grid-rows-[auto_minmax(0,1fr)] gap-4 bg-background px-4 pb-4 text-foreground sm:px-6 sm:pb-6">
+      <main className="grid min-h-screen grid-rows-[auto_minmax(0,1fr)] gap-4 bg-background px-4 pb-28 text-foreground sm:px-6 sm:pb-32">
         <Separator />
 
         <section className="min-h-0">
@@ -617,6 +650,15 @@ export function WebdeckApp({
           }
         }}
         onSubmit={handleConnect}
+      />
+      <ObsProfileDock
+        connectionStatus={connectionStatus}
+        currentProfileName={currentProfileName}
+        isBusy={isSwitchingProfile}
+        profileNames={profileNames}
+        onSelectProfile={(profileName) => {
+          void handleSelectProfile(profileName);
+        }}
       />
       <ConfirmActionCall />
     </>

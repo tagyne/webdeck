@@ -16,6 +16,7 @@ export interface ObsClient {
   readonly state: ObsState;
   connect(settings: ObsConnectionSettings): Promise<void>;
   disconnect(): Promise<void>;
+  setCurrentProfile(profileName: string): Promise<void>;
   toggleInputMute(inputName: string): Promise<void>;
   setCurrentProgramScene(sceneName: string): Promise<void>;
   toggleSourceVisibility(sceneName: string, sourceName: string): Promise<void>;
@@ -27,6 +28,7 @@ export interface ObsClient {
 
 const INITIAL_STATE: ObsState = {
   connectionStatus: "idle",
+  profileNames: [],
   mutedInputs: {},
   visibleSources: {},
   isStreaming: false,
@@ -40,6 +42,8 @@ export class ObsWebSocketClient implements ObsClient {
 
   constructor() {
     this.obs.on("CurrentProgramSceneChanged", this.handleSceneChanged);
+    this.obs.on("CurrentProfileChanged", this.handleProfileChanged);
+    this.obs.on("ProfileListChanged", this.handleProfileListChanged);
     this.obs.on("InputMuteStateChanged", this.handleMuteChanged);
     this.obs.on("StreamStateChanged", this.handleStreamChanged);
     this.obs.on("RecordStateChanged", this.handleRecordChanged);
@@ -67,6 +71,10 @@ export class ObsWebSocketClient implements ObsClient {
           eventSubscriptions: EventSubscription.All,
         },
       );
+      void this.refreshProfileState().catch((error) => {
+        const message = error instanceof Error ? error.message : "Unable to load OBS profiles.";
+        this.updateState({ lastError: message });
+      });
       this.updateState({ connectionStatus: "connected", lastError: undefined });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to connect to OBS.";
@@ -78,6 +86,11 @@ export class ObsWebSocketClient implements ObsClient {
   async disconnect() {
     await this.obs.disconnect();
     this.updateState({ connectionStatus: "disconnected" });
+  }
+
+  async setCurrentProfile(profileName: string) {
+    await this.obs.call("SetCurrentProfile", { profileName });
+    this.updateState({ currentProfileName: profileName });
   }
 
   async toggleInputMute(inputName: string) {
@@ -150,6 +163,18 @@ export class ObsWebSocketClient implements ObsClient {
     this.updateState({ activeSceneName: event.sceneName });
   };
 
+  private handleProfileChanged = (
+    event: OBSEventTypes["CurrentProfileChanged"],
+  ) => {
+    this.updateState({ currentProfileName: event.profileName });
+  };
+
+  private handleProfileListChanged = (
+    event: OBSEventTypes["ProfileListChanged"],
+  ) => {
+    this.updateState({ profileNames: event.profiles });
+  };
+
   private handleMuteChanged = (
     event: OBSEventTypes["InputMuteStateChanged"],
   ) => {
@@ -184,6 +209,14 @@ export class ObsWebSocketClient implements ObsClient {
     for (const listener of this.listeners) {
       listener(this.internalState);
     }
+  }
+
+  private async refreshProfileState() {
+    const { currentProfileName, profiles } = await this.obs.call("GetProfileList");
+    this.updateState({
+      currentProfileName,
+      profileNames: profiles,
+    });
   }
 }
 
